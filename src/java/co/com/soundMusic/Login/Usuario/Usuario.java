@@ -1,25 +1,22 @@
 package co.com.soundMusic.Login.Usuario;
 
-import co.com.soundMusic.Contacto.Contacto;
-import co.com.soundMusic.Contacto.ContactoDaoImpl;
 import co.com.soundMusic.Login.CuentaUsuario.UsuarioLogin;
 import co.com.soundMusic.Login.CuentaUsuario.UsuarioLoginDaoImpl;
 import co.com.soundMusic.Seguridad.Perfiles.Perfil;
 import co.com.soundMusic.Seguridad.Perfiles.PerfilDaoImpl;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
+ * Clase consiste de métodos para el mansejo y creación de objetos Usuario.
  *
  * @author Santiago Medina Pelaez
+ * @since 0.0.0
  */
 public class Usuario {
 
-    private int idUsuario;
+    private Integer idUsuario;
     private String primerNombre;
     private String segundoNombre;
     private String primerApellido;
@@ -27,20 +24,64 @@ public class Usuario {
     private Date fechaCreacion;
     private String status;
     private String genero;
-    private int idPerfil;
-    private int idUsuarioLogin;
-    private int idContacto;
+    private Integer idPerfil;
+    private Integer idUsuarioLogin;
     private Perfil perfil;
-    private Contacto contacto;
     private UsuarioLogin usuarioLogin;
 
+    /**
+     * Constructor vacio de la clase Usuario.
+     * <p>
+     * El contructor se encarga de ininicalizar las variables Perfil, Contacto y
+     * UsuarioLogin.
+     */
     public Usuario() {
+        this.perfil = new Perfil();
+        this.usuarioLogin = new UsuarioLogin();
     }
 
-    public Usuario(int idUsuario, String primerNombre, String segundoNombre,
+    /**
+     * Constructor vacio de la clase Usuario.
+     *
+     * @param idUsuario conteniendo el número id del nuevo objeto Usuario.
+     * @since 2.5.
+     */
+    public Usuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    /**
+     * Constructor de la clase Usuario.
+     *
+     * @param primerNombre
+     * @param segundoNombre
+     * @param primerApellido
+     * @param segundoApellido
+     * @param fechaCreacion
+     * @param status
+     * @param genero
+     * @param idPerfil
+     * @param idUsuarioLogin
+     * @param idContacto
+     * @since 2.8.
+     */
+    public Usuario(String primerNombre, String segundoNombre, String primerApellido,
+            String segundoApellido, Date fechaCreacion, String status, String genero,
+            Integer idPerfil, Integer idUsuarioLogin) {
+        this.primerNombre = primerNombre;
+        this.segundoNombre = segundoNombre;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
+        this.fechaCreacion = fechaCreacion;
+        this.status = status;
+        this.genero = genero;
+        this.idPerfil = idPerfil;
+        this.idUsuarioLogin = idUsuarioLogin;
+    }
+
+    public Usuario(Integer idUsuario, String primerNombre, String segundoNombre,
             String primerApellido, String segundoApellido, Date fechaCreacion,
-            String status, String genero, int idPerfil, int idUsuarioLogin,
-            int idContacto) {
+            String status, String genero, Integer idPerfil, Integer idUsuarioLogin) {
         this.idUsuario = idUsuario;
         this.primerNombre = primerNombre;
         this.segundoNombre = segundoNombre;
@@ -51,14 +92,39 @@ public class Usuario {
         this.genero = genero;
         this.idPerfil = idPerfil;
         this.idUsuarioLogin = idUsuarioLogin;
-        this.idContacto = idContacto;
     }
 
-    public int getIdUsuario() {
+    /**
+     * Constructor del objeto Usuario.
+     *
+     * @param idUsuario conteniendo el número id del nuevo objeto Usuario.
+     * @param primerNombre
+     * @param segundoNombre
+     * @param primerApellido
+     * @param segundoApellido
+     * @param fechaCreacion
+     * @param status
+     * @param genero
+     * @since 2.8.
+     */
+    public Usuario(Integer idUsuario, String primerNombre, String segundoNombre,
+            String primerApellido, String segundoApellido, Date fechaCreacion,
+            String status, String genero) {
+        this.idUsuario = idUsuario;
+        this.primerNombre = primerNombre;
+        this.segundoNombre = segundoNombre;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
+        this.fechaCreacion = fechaCreacion;
+        this.status = status;
+        this.genero = genero;
+    }
+
+    public Integer getIdUsuario() {
         return idUsuario;
     }
 
-    public void setIdUsuario(int idUsuario) {
+    public void setIdUsuario(Integer idUsuario) {
         this.idUsuario = idUsuario;
     }
 
@@ -110,27 +176,19 @@ public class Usuario {
         this.status = status;
     }
 
-    public int getIdContacto() {
-        return idContacto;
-    }
-
-    public void setIdContacto(int idContacto) {
-        this.idContacto = idContacto;
-    }
-
-    public int getIdUsuarioLogin() {
+    public Integer getIdUsuarioLogin() {
         return idUsuarioLogin;
     }
 
-    public void setIdUsuarioLogin(int idUsuarioLogin) {
+    public void setIdUsuarioLogin(Integer idUsuarioLogin) {
         this.idUsuarioLogin = idUsuarioLogin;
     }
 
-    public int getIdPerfil() {
+    public Integer getIdPerfil() {
         return idPerfil;
     }
 
-    public void setidPerfil(int idPerfil) {
+    public void setidPerfil(Integer idPerfil) {
         this.idPerfil = idPerfil;
     }
 
@@ -149,15 +207,7 @@ public class Usuario {
     public void setPerfil(Perfil perfil) {
         this.perfil = perfil;
     }
-
-    public Contacto getContacto() {
-        return contacto;
-    }
-
-    public void setContacto(Contacto contacto) {
-        this.contacto = contacto;
-    }
-
+   
     public UsuarioLogin getUsuarioLogin() {
         return usuarioLogin;
     }
@@ -207,8 +257,16 @@ public class Usuario {
                 + ", status=" + status + '}';
     }
 
-    public Object obtenerUsuarioLogeado(String nom_usuario, String password_us) throws SQLException {
-        UsuarioDaoImpl daoUsuario = new UsuarioDaoImpl();
+    /**
+     *
+     *
+     *
+     * @param nom_usuario
+     * @param password_us
+     * @return
+     */
+    public Usuario obtenerUsuarioLogeado(String nom_usuario, String password_us) {
+        UsuarioDaoImpl daoUsuario = new UsuarioDaoImpl(true);
         List<Usuario> lstUsuario = daoUsuario.obtenerUsuarios();
         for (Usuario usuario : lstUsuario) {
             if (usuario.getUsuarioLogin().getNombreUsuario().equalsIgnoreCase(nom_usuario)
@@ -219,31 +277,19 @@ public class Usuario {
         return null;
     }
 
-    public void obtenerContactoUsuario() {
-        ContactoDaoImpl daoContacto = new ContactoDaoImpl();
-        try {
-            this.setContacto(daoContacto.obtenerContacto(this.idContacto));
-        } catch (SQLException ex) {
-            Logger.getLogger(Usuario.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+//    public void obtenerContactoUsuario() {
+//        ContactoDaoImpl daoContacto = new ContactoDaoImpl(true);
+//        this.setContacto(daoContacto.obtenerContacto(this.idContacto));
+//    }
 
     public void obtenerPerfilUsuario() {
-        PerfilDaoImpl daoPerfil = new PerfilDaoImpl();
-        try {
-            this.setPerfil(daoPerfil.obtenerPerfil(this.idPerfil));
-        } catch (SQLException ex) {
-            Logger.getLogger(Usuario.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        PerfilDaoImpl daoPerfil = new PerfilDaoImpl(true);
+        this.setPerfil(daoPerfil.obtenerPerfil(this.idPerfil));
     }
 
     public void obtenerUsuarioLogin() {
-        UsuarioLoginDaoImpl daoUsuarioLogin = new UsuarioLoginDaoImpl();
-        try {
-            this.setUsuarioLogin(daoUsuarioLogin.obtenerUsuarioLogin(this.idUsuarioLogin));
-        } catch (SQLException ex) {
-            Logger.getLogger(Usuario.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        UsuarioLoginDaoImpl daoUsuarioLogin = new UsuarioLoginDaoImpl(true);
+        this.setUsuarioLogin(daoUsuarioLogin.obtenerUsuarioLogin(this.idUsuarioLogin));
     }
 
 }

@@ -1,6 +1,5 @@
 package co.com.soundMusic.Seguridad.Perfiles;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -9,8 +8,11 @@ import java.util.List;
  */
 public interface IPerfilDao {
 
-    List<Perfil> obtenerPerfiles() throws SQLException;
-    Perfil obtenerPerfil(int idPerfil) throws SQLException;
-    void crearPerfil(Perfil perfil) throws SQLException;
-    void actualizarArtista (Perfil perfil) throws SQLException;
+    List<Perfil> obtenerPerfiles();
+
+    Perfil obtenerPerfil(int idPerfil);
+
+    void crearPerfil(Perfil perfil);
+
+    void actualizarPerfil(Perfil perfil);
 }

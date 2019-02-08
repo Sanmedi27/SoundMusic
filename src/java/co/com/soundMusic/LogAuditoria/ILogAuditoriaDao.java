@@ -1,6 +1,5 @@
 package co.com.soundMusic.LogAuditoria;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -9,9 +8,9 @@ import java.util.List;
  */
 public interface ILogAuditoriaDao {
 
-    List<LogAuditoria> obtenerLogAuditoria() throws SQLException;
+    List<LogAuditoria> obtenerLogAuditoria();
 
-    List<LogAuditoria> obtenerLogAuditoriaPorUsuario(int idUsuario) throws SQLException;
+    List<LogAuditoria> obtenerLogAuditoriaPorUsuario(int idUsuario);
 
-    void crearLog(LogAuditoria logAuditoria) throws SQLException;
+    void crearLog(LogAuditoria logAuditoria);
 }

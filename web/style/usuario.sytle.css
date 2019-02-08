@@ -1,0 +1,28 @@
+/*---------------------IMAGENES DE ICON OJO--------------------------*/
+#img-ojo-1 , #img-ojo-2{
+    cursor: pointer;
+    display: block;
+    position: relative;
+    bottom: 50px;
+    width: 30px;
+    left: 85%;
+    margin: 0 10px;
+}
+select{
+    width: 40%;
+}
+/*---------------------REQUISITO DE VCALIDACION--------------------------*/
+.ul-usuario, .ul-password{
+    width: 100%;
+    position: relative;
+    bottom: 10px;
+}
+.ul-usuario,.ul-password{
+    position: relative;
+    bottom: 15px;
+    list-style: none;
+    margin: 0 5px;
+    color: #979A9A;
+    font-size: 12px;
+    padding: 10px 0 0 0;
+}

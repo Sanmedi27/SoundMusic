@@ -25,4 +25,24 @@ $(function () {
     });
 }());
 
+//MOSTRAR SOLO ARTISTAS ACTIVOS O TODOS
+function cambiarLista() {
+    // Get the checkbox
+    var checkBox = document.getElementById("modoListar");
+
+    if (checkBox.checked === true) {
+        $("table tr").each(function () {
+            var fila = $(this).find(":nth-child(6)");
+            if (fila.text() === "Inactivo")
+                $(this).hide();
+        });
+    } else {
+        $("table tr").each(function () {
+            var fila = $(this).find(":nth-child(6)");
+            if (fila.text() === "Inactivo")
+                $(this).show();
+        });
+    }
+}
+
 

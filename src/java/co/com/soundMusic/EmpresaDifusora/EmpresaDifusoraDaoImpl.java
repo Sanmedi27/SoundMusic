@@ -1,14 +1,18 @@
 package co.com.soundMusic.EmpresaDifusora;
 
+import co.com.soundMusic.EmpresaDifusora.TipoCosto.CostoActividad;
+import co.com.soundMusic.EmpresaDifusora.TipoCosto.TipoEmpresaDifusora;
 import co.com.soundMusic.utilidades.DBUtil;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.dbutils.DbUtils;
 
 /**
  *
@@ -16,125 +20,295 @@ import java.util.List;
  */
 public class EmpresaDifusoraDaoImpl implements IEmpresaDifusoraDao {
 
-    private Connection conexion;
+    //Conexion a la base de datos
+    private final Connection conexion;
 
-    public EmpresaDifusoraDaoImpl() {
-        conexion = DBUtil.getConexion();
+    private Statement stmt;
+    private ResultSet rs;
+    //Constantes con las querys a la base de datos
+    private static final String SELECT_EMPRESAS;
+    private static final String SELECT_EMPRESA_POOR_ID;
+    private static final String INSERT_EMPRESA;
+    private static final String UPDATE_STATUS;
+    private static final String UPDATE_EMPRSA;
+    private static final String SELECT_ULTIMO_ID;
+    private static final String SELECT_ID_COSTO;
+
+    public EmpresaDifusoraDaoImpl(Boolean production) {
+        if (production) {
+            conexion = DBUtil.getConexion();
+        } else {
+            conexion = DBUtil.getTestConexion();
+        }
+        stmt = null;
+        rs = null;
     }
 
     @Override
-    public List<EmpresaDifusora> obtenerEmpresasDifusoras() throws SQLException {
+    public List<EmpresaDifusora> obtenerEmpresasDifusoras() {
         List<EmpresaDifusora> listaEmpresasDifusora = new ArrayList<>();
+        try {
+            stmt = conexion.createStatement();
+            rs = stmt.executeQuery(SELECT_EMPRESAS);
 
-        Statement stmt = conexion.createStatement();
-        String sql = "SELECT ID_EMPRESA_DIFUSORA,NOMBRE,FECHA_CREACION,FECHA_TERMINACION,STATUS,\n"
-                + "RUTA_IMAGEN, ID_TIPO_ACTIVIDAD, ID_CONTACTO, ID_COSTO_ACTIVIDAD\n" + "FROM EMPRESA_DIFUSORA";
+            while (rs.next()) {
+                EmpresaDifusora empresaDifusora = new EmpresaDifusora();
+                TipoEmpresaDifusora tipoActividad = new TipoEmpresaDifusora();
+                CostoActividad costoOperacion = new CostoActividad();
 
-        ResultSet rs = stmt.executeQuery(sql);
+                //Crear Tipo Empres Difusora
+                tipoActividad.setIdTipoActividad(rs.getInt("TIPO_ACTIVIDAD"));
+                tipoActividad.setTipoActividad(rs.getString("NOMBRE_ACTIVIDAD"));
+                //Crear CostoActividad
+                costoOperacion.setIdCostoActividad(rs.getInt("COSTO"));
+                costoOperacion.setCostoPorOperacion(rs.getFloat("COSTO_OPERACION"));
+                costoOperacion.setFechaCreacion(rs.getDate("COSTO_CREACION"));
+                costoOperacion.setFechaUsoFinal(rs.getDate("COSTO_FECHA_FINAL"));
 
-        while (rs.next()) {
-            int idEmpresaDifusora = rs.getInt("ID_EMPRESA_DIFUSORA");
-            String nombreEmpresa = rs.getString("NOMBRE");
-            Date fechaCreacion = rs.getDate("FECHA_CREACION");
-            Date fechaTerminacion = rs.getDate("FECHA_TERMINACION");
-            String status = rs.getString("STATUS");
-            String rutaImagen = rs.getString("RUTA_IMAGEN");
-            int idTipoActividad = rs.getInt("ID_TIPO_ACTIVIDAD");
-            int idContacto = rs.getInt("ID_CONTACTO");
-            int idCostoOperacion = rs.getInt("ID_COSTO_ACTIVIDAD");
+                empresaDifusora.setIdEmpresaDifusora(rs.getInt("ID_EMPRESA_DIFUSORA"));
+                empresaDifusora.setNombre(rs.getString("NOMBRE"));
+                empresaDifusora.setFechaCreacion(rs.getDate("FECHA_CREACION"));
+                empresaDifusora.setFechaTerminacion(rs.getDate("FECHA_TERMINACION"));
+                empresaDifusora.setStatus(rs.getString("STATUS"));
+                empresaDifusora.setCostoOperacion(costoOperacion);
+                empresaDifusora.setTipoActividad(tipoActividad);
 
-            EmpresaDifusora empresaDifusora = new EmpresaDifusora(idEmpresaDifusora, nombreEmpresa, fechaCreacion,
-                    fechaTerminacion, status, rutaImagen, idTipoActividad, idContacto, idCostoOperacion);
+                listaEmpresasDifusora.add(empresaDifusora);
+            }
 
-            listaEmpresasDifusora.add(empresaDifusora);
+        } catch (SQLException | NullPointerException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(rs);
+                    DbUtils.closeQuietly(stmt);
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-
-        stmt.close();
         return listaEmpresasDifusora;
     }
 
     @Override
-    public EmpresaDifusora obtenerEmpresaDifusora(int idEmpresaDifusora) throws SQLException {
-        String sql = "SELECT ID_EMPRESA_DIFUSORA,NOMBRE,FECHA_CREACION,FECHA_TERMINACION,STATUS,\n"
-                + "RUTA_IMAGEN, ID_TIPO_ACTIVIDAD, ID_CONTACTO, ID_COSTO_ACTIVIDAD\n" + "FROM EMPRESA_DIFUSORA"
-                + "WHERE ID_EMPRESA_DIFUSORA=?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setInt(1, idEmpresaDifusora);
-        ResultSet rs = ps.executeQuery();
+    public EmpresaDifusora obtenerEmpresaDifusora(int idEmpresaDifusora) {
+        EmpresaDifusora empresaDifusora = new EmpresaDifusora();
+        try {
+            PreparedStatement ps = conexion.prepareStatement(SELECT_EMPRESA_POOR_ID);
+            ps.setInt(1, idEmpresaDifusora);
+            rs = ps.executeQuery();
 
-        while (rs.next()) {
-            String nombreEmpresa = rs.getString("NOMBRE");
-            Date fechaCreacion = rs.getDate("FECHA_CREACION");
-            Date fechaTerminacion = rs.getDate("FECHA_TERMINACION");
-            String status = rs.getString("STATUS");
-            String rutaImagen = rs.getString("RUTA_IMAGEN");
-            int idTipoActividad = rs.getInt("ID_TIPO_ACTIVIDAD");
-            int idContacto = rs.getInt("ID_CONTACTO");
-            int idCostoOperacion = rs.getInt("ID_COSTO_ACTIVIDAD");
+            while (rs.next()) {
 
-            EmpresaDifusora empresaDifusora = new EmpresaDifusora(idEmpresaDifusora, nombreEmpresa, fechaCreacion,
-                    fechaTerminacion, status, rutaImagen, idTipoActividad, idContacto, idCostoOperacion);
-            return empresaDifusora;
+                TipoEmpresaDifusora tipoActividad = new TipoEmpresaDifusora();
+                CostoActividad costoOperacion = new CostoActividad();
+
+                //Crear Tipo Empres Difusora
+                tipoActividad.setIdTipoActividad(rs.getInt("TIPO_ACTIVIDAD"));
+                tipoActividad.setTipoActividad(rs.getString("NOMBRE_ACTIVIDAD"));
+                //Crear CostoActividad
+                costoOperacion.setIdCostoActividad(rs.getInt("COSTO"));
+                costoOperacion.setCostoPorOperacion(rs.getFloat("COSTO_OPERACION"));
+                costoOperacion.setFechaCreacion(rs.getDate("COSTO_CREACION"));
+                costoOperacion.setFechaUsoFinal(rs.getDate("COSTO_FECHA_FINAL"));
+
+                empresaDifusora.setIdEmpresaDifusora(idEmpresaDifusora);
+                empresaDifusora.setNombre(rs.getString("NOMBRE"));
+                empresaDifusora.setFechaCreacion(rs.getDate("FECHA_CREACION"));
+                empresaDifusora.setFechaTerminacion(rs.getDate("FECHA_TERMINACION"));
+                empresaDifusora.setStatus(rs.getString("STATUS"));
+                empresaDifusora.setCostoOperacion(costoOperacion);
+                empresaDifusora.setTipoActividad(tipoActividad);
+
+                return empresaDifusora;
+            }
+        } catch (SQLException | NullPointerException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(rs);
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-
-        return null;
+        return empresaDifusora;
     }
 
     @Override
-    public void crearEmpresaDifusora(EmpresaDifusora empresaDifusora) throws SQLException {
-        String sql = "INSERT INTO EMPRESA_DIFUSORA (NOMBRE,FECHA_CREACION,FECHA_TERMINACION,STATUS,\n"
-                + "RUTA_IMAGEN, ID_TIPO_ACTIVIDAD, ID_CONTACTO, ID_COSTO_ACTIVIDAD)\n" + "VALUES (?,?,?,?,?,?,?,?)";
-        PreparedStatement ps = conexion.prepareStatement(sql);
+    public void crearEmpresaDifusora(EmpresaDifusora empresaDifusora) {
+        try {
+            PreparedStatement ps = conexion.prepareStatement(INSERT_EMPRESA);
 
-        ps.setString(1, empresaDifusora.getNombre());
-        ps.setDate(2, empresaDifusora.getFechaCreacion());
-        ps.setDate(3, empresaDifusora.getFechaTerminacion());
-        ps.setString(4, empresaDifusora.getStatus());
-        ps.setString(5, empresaDifusora.getRutaImagen());
-        ps.setInt(6, empresaDifusora.getIdTipoActividad());
-        ps.setInt(7, empresaDifusora.getIdContacto());
-        ps.setInt(8, empresaDifusora.getIdCostoOperacion());
-        ps.executeUpdate();
+            ps.setString(1, empresaDifusora.getNombre());
+            ps.setDate(2, empresaDifusora.getFechaCreacion());
+            ps.setString(3, empresaDifusora.getStatus());
+            ps.setInt(4, empresaDifusora.getTipoActividad().getIdTipoActividad());
+            ps.setInt(5, empresaDifusora.getCostoOperacion().getIdCostoActividad());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
-    public void eliminarEmpresaDifusora(String status, int idEmpresaDifusora) throws SQLException {
-        String sql = "UPDATE EMPRESA_DIFUSORA\n" + "SET STATUS=?\n" + "WHERE ID_EMPRESA_DIFUSORA=?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setString(1, status);
-        ps.setInt(2, idEmpresaDifusora);
-        ps.executeUpdate();
+    public void eliminarEmpresaDifusora(String status, int idEmpresaDifusora) {
+        try {
+            PreparedStatement ps = conexion.prepareStatement(UPDATE_STATUS);
+            ps.setString(1, status);
+            ps.setInt(2, idEmpresaDifusora);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
-    public void actualizarEmpresaDifusora(EmpresaDifusora empresaDifusora) throws SQLException {
-        String sql = "UPDATE EMPRESA_DIFUSORA\n"
-                + "SET NOMBRE=?,FECHA_CREACION=?,FECHA_TERMINACION=?,STATUS=?,RUTA_IMAGEN=?,\n"
-                + "ID_TIPO_ACTIVIDAD=?, ID_CONTACTO=?, ID_COSTO_ACTIVIDAD=?\n" + "WHERE ID_EMPRESA_DIFUSORA=?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
+    public void actualizarEmpresaDifusora(EmpresaDifusora empresaDifusora) {
+        try {
+            PreparedStatement ps = conexion.prepareStatement(UPDATE_EMPRSA);
 
-        ps.setString(1, empresaDifusora.getNombre());
-        ps.setDate(2, empresaDifusora.getFechaCreacion());
-        ps.setDate(3, empresaDifusora.getFechaTerminacion());
-        ps.setString(4, empresaDifusora.getStatus());
-        ps.setString(5, empresaDifusora.getRutaImagen());
-        ps.setInt(6, empresaDifusora.getIdTipoActividad());
-        ps.setInt(7, empresaDifusora.getIdContacto());
-        ps.setInt(8, empresaDifusora.getIdCostoOperacion());
-        ps.setInt(9, empresaDifusora.getIdEmpresaDifusora());
-        ps.executeUpdate();
+            ps.setString(1, empresaDifusora.getNombre());
+            ps.setDate(2, empresaDifusora.getFechaTerminacion());
+            ps.setString(3, empresaDifusora.getStatus());
+            ps.setInt(4, empresaDifusora.getTipoActividad().getIdTipoActividad());
+            ps.setInt(5, empresaDifusora.getCostoOperacion().getIdCostoActividad());
+            ps.setInt(6, empresaDifusora.getIdEmpresaDifusora());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
-    public int getUltimoIdEmpresaDifusora() throws SQLException {
-        String sql = "SELECT EMPRESA_DIFUSORA_SEQ.CURRVAL\n"
-                + "FROM DUAL";
-
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery(sql);
-        while (rs.next()) {
-            int idEmpresaDifusora = rs.getInt("CURRVAL");
-            return idEmpresaDifusora;
+    public int getUltimoIdEmpresaDifusora() {
+        int idEmpresaDifusora = -1;
+        try {
+            PreparedStatement ps = conexion.prepareStatement(SELECT_ULTIMO_ID);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                idEmpresaDifusora = rs.getInt("CURRVAL");
+                return idEmpresaDifusora;
+            }
+        } catch (SQLException | NullPointerException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return idEmpresaDifusora;
+    }
+    
+    public int getIdCosto(int IdEmpresa) {
+        try {
+            PreparedStatement ps = conexion.prepareStatement(SELECT_ID_COSTO);
+            ps.setInt(1, IdEmpresa);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                return rs.getInt("ID_COSTO_ACTIVIDAD");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(rs);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(EmpresaDifusoraDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         return -1;
+    }
+
+    static {
+        SELECT_EMPRESAS = "SELECT EMDI.ID_EMPRESA_DIFUSORA,EMDI.NOMBRE,EMDI.FECHA_CREACION, \n"
+                + "EMDI.FECHA_TERMINACION,EMDI.STATUS,EMDI.ID_TIPO_ACTIVIDAD AS TIPO_ACTIVIDAD,\n"
+                + "EMDI.ID_COSTO_ACTIVIDAD AS COSTO, TIPACT.NOMBRE AS NOMBRE_ACTIVIDAD,\n"
+                + "COSACT.COSTO_POR_OPERACION AS COSTO_OPERACION,COSACT.FECHA_CREACION AS COSTO_CREACION, \n"
+                + "COSACT.FECHA_USO_FINAL AS COSTO_FECHA_FINAL \n"
+                + "FROM EMPRESA_DIFUSORA EMDI INNER JOIN TIPO_ACTIVIDAD TIPACT \n"
+                + "ON EMDI.ID_TIPO_ACTIVIDAD = TIPACT.ID_TIPO_ACTIVIDAD \n"
+                + "INNER JOIN COSTO_ACTIVITIDAD COSACT \n"
+                + "ON EMDI.ID_COSTO_ACTIVIDAD = COSACT.ID_COSTO_ACTIVIDAD \n"
+                + "ORDER BY ID_EMPRESA_DIFUSORA";
+
+        SELECT_EMPRESA_POOR_ID = "SELECT EMDI.NOMBRE,EMDI.FECHA_CREACION, \n"
+                + "EMDI.FECHA_TERMINACION,EMDI.STATUS, \n"
+                + "EMDI.ID_TIPO_ACTIVIDAD AS TIPO_ACTIVIDAD, \n"
+                + "EMDI.ID_COSTO_ACTIVIDAD AS COSTO,TIPACT.NOMBRE AS NOMBRE_ACTIVIDAD,\n"
+                + "COSACT.COSTO_POR_OPERACION AS COSTO_OPERACION,COSACT.FECHA_CREACION AS COSTO_CREACION,\n"
+                + "COSACT.FECHA_USO_FINAL AS COSTO_FECHA_FINAL \n"
+                + "FROM EMPRESA_DIFUSORA EMDI  INNER JOIN TIPO_ACTIVIDAD TIPACT \n"
+                + "ON EMDI.ID_TIPO_ACTIVIDAD = TIPACT.ID_TIPO_ACTIVIDAD \n"
+                + "INNER JOIN COSTO_ACTIVITIDAD COSACT \n"
+                + "ON EMDI.ID_COSTO_ACTIVIDAD = COSACT.ID_COSTO_ACTIVIDAD \n"
+                + "WHERE ID_EMPRESA_DIFUSORA=?";
+
+        INSERT_EMPRESA = "INSERT INTO EMPRESA_DIFUSORA (NOMBRE,FECHA_CREACION,STATUS,\n"
+                + "ID_TIPO_ACTIVIDAD, ID_COSTO_ACTIVIDAD)\n"
+                + "VALUES (?,?,?,?,?)";
+
+        UPDATE_STATUS = "UPDATE EMPRESA_DIFUSORA\n"
+                + "SET STATUS=?\n"
+                + "WHERE ID_EMPRESA_DIFUSORA=?";
+
+        UPDATE_EMPRSA = " UPDATE EMPRESA_DIFUSORA\n"
+                + "SET NOMBRE=?,FECHA_TERMINACION=?,STATUS=?,\n"
+                + "ID_TIPO_ACTIVIDAD=?,ID_COSTO_ACTIVIDAD=?\n"
+                + "WHERE ID_EMPRESA_DIFUSORA=?";
+
+        SELECT_ULTIMO_ID = "SELECT EMPRESA_DIFUSORA_SEQ.CURRVAL\n"
+                + "FROM DUAL";
+
+        SELECT_ID_COSTO = "SELECT ID_COSTO_ACTIVIDAD\n"
+                + "FROM EMPRESA_DIFUSORA\n"
+                + "WHERE ID_EMPRESA_DIFUSORA=?";
     }
 }

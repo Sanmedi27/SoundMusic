@@ -1,3 +1,5 @@
+<%@page import="co.com.soundMusic.LogAuditoria.LogAuditoria"%>
+<%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -24,40 +26,33 @@
 
             <div class="row">
                 <div class="col-md-12">
-
                     <table class="table">
                         <thead class="thead-dark">
                             <tr>
                                 <th>#</th>
                                 <th>Nombre de Usuario</th>
+                                <th>Nombre y Apellido</th>            
                                 <th>Tipo Usuario</th>
                                 <th>Fecha Modificacion</th>
                                 <th>Operaciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th>1</th>
-                                <td>admin</td>
-                                <td>Administrador</td>
-                                <td>11/09/2018 15:05PM</td>
-                                <td>
-                                    <span class="badge badge-primary">Modificar Usuario</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>2</th>
-                                <td>santiMarin</td>
-                                <td>Operador</td>
-                                <td>12/09/2018 10:05AM</td>
-                                <td>
-                                    <span class="badge badge-primary">Modificar Usuario</span>
-                                </td>
-                            </tr>
+                            <%
+                                List<LogAuditoria> lstLogAuditoria = (List<LogAuditoria>) request.getAttribute("lstLogAuditoria");
+                                for (LogAuditoria logAud : lstLogAuditoria) {
+                                    out.print("<tr>");
+                                    out.print("<th  scope='row'>" + logAud.getIdLogAuditoria() + "</th>");
+                                    out.print("<td>" + logAud.getUsuario().getUsuarioLogin().getNombreUsuario() + "</td>");
+                                    out.print("<td>" + logAud.getUsuario().getPrimerNombre() + " " + logAud.getUsuario().getPrimerApellido() + "</td>");
+                                    out.print("<td>" + logAud.getUsuario().getPerfil().getNombrePerfil() + "</td>");
+                                    out.print("<td>" + logAud.getFecha() + "</td>");
+                                    out.print("<td><span class='badge badge-primary'>" + logAud.getOperaciones().getNombrePermiso() + "</span></td>");
+                                    out.print("</tr>");
+                                }
+                            %>
                         </tbody>
                     </table>
-
-                    <%@include file="pruebasTablas/listaLogAuditoria.jsp" %>
 
                 </div>
             </div>

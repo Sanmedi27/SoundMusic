@@ -1,6 +1,5 @@
 package co.com.soundMusic.Negocio.Logros;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -9,14 +8,14 @@ import java.util.List;
  */
 public interface ILogroDao {
 
-    List<Logro> obtenerLogros() throws SQLException;
+    List<Logro> obtenerLogros();
 
-    Logro obtenerLogro(int idLogro) throws SQLException;
+    Logro obtenerLogro(int idLogro);
 
-    void crearLogro(Logro logro) throws SQLException;
+    void crearLogro(Logro logro);
 
-    void eliminarLogro(int idLogro) throws SQLException;
+    void eliminarLogro(Logro logro);
 
-    void actualizarLogro(Logro logro) throws SQLException;
+    void actualizarLogro(Logro logro);
 
 }

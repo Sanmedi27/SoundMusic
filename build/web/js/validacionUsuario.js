@@ -1,116 +1,118 @@
-$(function () {
-    var formulario = document.formulario_usuario,
-            elementos = formulario.elements;
-// FUNCIONES
-    var validarInputs = function () {
-        for (var i = 0; i < elementos.length; i++) {
-            if ((elementos[i].type == "number") || (elementos[i].type == "text") || (elementos[i].type == "date") || (elementos[i].type == "password")) {
-                if (elementos[i].value == 0) {
-                    console.log("El campo, " + elementos[i].name + " esta incompleto");
-                    elementos[i].className = elementos[i].className + "  is-invalid";
-                    return false;
-                } else {
-                    elementos[i].className = elementos[i].className.replace("is-invalid", "");
-                }
-            }
-        }
-        if (elementos.pass1.value !== elementos.pass2.value) {
-            elementos.pass1.value = "";
-            elementos.pass2.value = "";
-            elementos.pass1.className = elementos.pass1.className + " is-invalid";
-            elementos.pass2.className = elementos.pass2.className + " is-invalid";
+$(document).ready(function () {
+    $("#btnGuardar").click(function () {
+        var nom1 = $("#nom1").val();
+        var apellido1 = $("#apellido1").val();
+        var apellido2 = $("#apellido2").val();
+        var textSex1 = $("#textSex1:checked");
+        var textSex2 = $("#textSex2:checked");
+        var email = $("#email").val();
+        var nomUsuario = $("#nomUsuario").val();
+        var pass1 = $("#pass1").val();
+        var pass2 = $("#pass2").val();
+        var numCel = $("#numCel").val();
+        var pais = $("#pais option:selected");
+        var check = $("#check:checked");
+
+        if (nom1 == "") {
+            $("#nom1").addClass("is-invalid");
+            alerta();
             return false;
-
         } else {
-            elementos.pass1.className = elementos.pass1.className.replace("is-invalid", "");
-            elementos.pass2.className = elementos.pass2.className.replace("is-invalid", "");
+            $("#nom1").removeClass("is-invalid");
+
         }
-        return true;
-    };
 
-//    var validarRadio = function () {
-//        var op = document.getElementsByName("sexo"),
-//                res = false;
-//
-//        for (var i = 0; i < elementos.length; i++) {
-//            if (elementos[i].type == "radio" && elementos[i].name == "sexo") {
-//                console.log("Error metodo");
-//                for (var j = 0; j < op.length; j++) {
-//                    if (op[j].checked) {
-//                        console.log("Error checked");
-//                        res = true;
-//                        break;
-//                    }
-//                }
-//
-//                if (res == false) {
-//                    elementos[i].parentNode.className = elementos[i].parentNode.className + " is-invalid";
-//                    console.log("El campo esta incompleto");
-//                    return false;
-//                } else {
-//                    console.log("ERROR RADIO");
-//                    elementos[i].parentNode.className = elementos[i].parentNode.className.remplace("is-invalid", "");
-//                    return true;
-//                }
-//            }
-//        }
-//
-//    };
-
-    var enviar = function (e) {
-        if (!validarInputs()) {
-            console.log("Falta validar los inputs");
-            swal({
-                position: 'top-end',
-                type: 'error',
-                title: 'Faltan completar unos campos oblgatorio',
-                showConfirmButton: false,
-                timer: 1500
-            })
-            e.preventDefault();
+        if (apellido1 == "") {
+            $("#apellido1").addClass("is-invalid");
+            alerta();
+            return false;
         } else {
-            console.log("Envio exitosamente");
-            swal({
-                title: '¿Estas seguro quiere enviar los datos?',
-                text: "You won't be able to revert this!",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Si, guardar!'
-            }).then((result) => {
-                if (result.value) {
-                    swal(
-                            'Guardado!',
-                            'Envio exitosamente.',
-                            'success'
-                            );
-                }
-            });
-            e.preventDefault();
+            $("#apellido1").removeClass("is-invalid");
+        }
+
+        if (apellido2 == "") {
+            $("#apellido2").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#apellido2").removeClass("is-invalid");
 
         }
-    };
 
-    var focusInput = function () {
-        this.parentElement.children[1].className = "form-control active";
-        this.parentElement.children[0].className = this.parentElement.children[0].className.replace("is-invalid", "");
-    };
-
-    var blurInput = function () {
-        if (this.value <= 0) {
-            this.parentElement.children[1].className = "form-control is-invalid";
-            this.parentElement.children[0].className = this.parentElement.children[0].className + " is-invalid";
+        if ((textSex1.length == 0) && (textSex2.length == 0)) {
+            $("#textSex1").addClass("is-invalid");
+            $("#textSex2").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#textSex1").removeClass("is-invalid");
+            $("#textSex2").removeClass("is-invalid");
         }
-    };
 
-//EVENTOS
-    formulario.addEventListener("submit", enviar);
+        if (email == "") {
+            $("#email").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#email").removeClass("is-invalid");
 
-    for (var i = 0; i < elementos.length; i++) {
-        if ((elementos[i].type == "text") || (elementos[i].type == "number") || (elementos[i].type == "password") || (elementos[i].type == "date")) {
-            elementos[i].addEventListener("focus", focusInput);
-            elementos[i].addEventListener("blur", blurInput);
         }
+
+        if (nomUsuario == "") {
+            $("#nomUsuario").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#nomUsuario").removeClass("is-invalid");
+        }
+
+        if (pass1 == "") {
+            $("#pass1").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#pass1").removeClass("is-invalid");
+        }
+
+        if (pass2 == "") {
+            $("#pass2").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#pass2").removeClass("is-invalid");
+        }
+
+        if (numCel == "") {
+            $("#numCel").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#numCel").removeClass("is-invalid");
+        }
+
+        if (pais.val() == "") {
+            $("#pais").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#pais").removeClass("is-invalid");
+        }
+
+        if (check.length == 0) {
+            $("#check").addClass("is-invalid");
+            alerta();
+            return false;
+        } else {
+            $("#check").removeClass("is-invalid");
+
+        }
+
+    });
+    function alerta() {
+        swal({
+            type: 'error',
+            title: 'Oops...',
+            text: 'Debes completar los campos que esta seleccionado el signo *'
+        });
     }
-}());
+});

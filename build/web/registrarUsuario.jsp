@@ -1,15 +1,19 @@
-
+<%@page import="co.com.soundMusic.Seguridad.Perfiles.Perfil"%>
+<%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
-        <title>SoundMusic</title>
+        <title>Sound Music</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="img/png" href="icon/musica.png"/>
         <link href="style/style.css" rel="stylesheet" type="text/css"/>
+        <link href="style/usuario.sytle.css" rel="stylesheet" type="text/css"/>
+        <link href="style/usuario.sytle.css" rel="stylesheet" type="text/css"/>
         <link href="bootstrap/CSS/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <link href="sweetarlert/sweetalert2.min.css" rel="stylesheet" type="text/css"/>
+
 
     </head>
 
@@ -34,28 +38,28 @@
 
                     <div class="row">
                         <div class="col">
-                            <a href="usuario.jsp" class="btn btn-danger" id="btn-regresar">Regresar</a>
+                            <a href="controladorUsuario?opcion=listarUsuarios" class="btn btn-danger" id="btn-regresar">Regresar</a>
                             <button type="button" class="btn btn-success" id="btn-nuevoRegistro">Agregar Nuevo Usuario</button>
                         </div>
                     </div>
 
                     <br>
 
-                    <form name="formulario_usuario" action="" method="post">
+                    <form name="formulario_usuario" action="controladorUsuario" method="post">
                         <input type="hidden" name="cod" value="0">
-
+                        <input type ="hidden" name="operacion" value="crear" />
 
 
                         <div class="form-row">
                             <div class="col">
                                 <label>Primer Nombre*</label>
-                                <input type="text" class="form-control " name="nombre1" id="nom1 texto" placeholder="Ingresar el primer nombre" >
+                                <input type="text" class="form-control " name="nombre1" id="nom1" placeholder="Ingresar el primer nombre" onkeypress="return validarSoloLetras(event);">
                                 <div class="invalid-feedback ">El primer nombre es un campo obligatorio</div>
 
                             </div>
                             <div class="col">
                                 <label>Segundo Nombre</label>
-                                <input type="text" class="form-control" name="nombre2" id="nom2" placeholder="Ingresar el segundo nombre">
+                                <input type="text" class="form-control" name="nombre2" id="nom2" placeholder="Ingresar el segundo nombre" onkeypress="return validarSoloLetras(event);">
                             </div>
                         </div>
 
@@ -64,13 +68,13 @@
                         <div class="form-row">
                             <div class="col">
                                 <label>Primer Apellido*</label>
-                                <input type="text" class="form-control " name="apellido1" id="apellido1 texto" placeholder="Ingresar el primer apellido " >
+                                <input type="text" class="form-control " name="apellido1" id="apellido1" placeholder="Ingresar el primer apellido " onkeypress="return validarSoloLetras(event);">
                                 <div class="invalid-feedback ">El primer apellido es un campo obligatorio</div>
 
                             </div>
                             <div class="col">
                                 <label>Segundo Apellido*</label>
-                                <input type="text" class="form-control " name="apellido2" id="apellido2 texto" placeholder="Ingresar el segundo apellido">
+                                <input type="text" class="form-control " name="apellido2" id="apellido2" placeholder="Ingresar el segundo apellido" onkeypress="return validarSoloLetras(event);">
                                 <div class="invalid-feedback ">El segundo apellido es un campo obligatorio</div>
                             </div>
                         </div>
@@ -79,90 +83,71 @@
                             <br>
                             <h8>Genero*</h8>
                             <br>
-                            <input class="form-check-input " type="radio" name="sexo" id="textSex1" value="Masculino" >
+                            <input class="form-check-input" type="radio" name="sexo" id="textSex1" value="M" >
                             <label class="form-check-label " for="textSex1">Masculino</label>
 
-                            <input class="form-check-input " type="radio" name="sexo" id="textSex2" value="Femenino">
+                            <input class="form-check-input" type="radio" name="sexo" id="textSex2" value="F">
                             <label class="form-check-label" for="textSex2">Femenino</label>
                             <br>
-                            <div class="invalid-feedback ">Debe seleccionar un campo</div>
+                            <div class="invalid-feedback ">Debe seleccionar un sexo</div>
 
                         </div>
-
-                        <div class="form-group">
-                            <label>Correo*</label>
-                            <input type="email" name="email" id="email" class="form-control" placeholder="Ingresar el correo electronico">
-                            <div class="invalid-feedback ">El correo electronico es un campo obligatorio</div>
-
-                        </div>
-
                         <div class="form-group">
                             <label>Nombre del Usuario*</label>
-                            <input type="text" class="form-control" name="nomUsuario" id="textNameUser" placeholder="Ingresar el nuevo usuario del operador" >
+                            <input type="text" class="form-control" name="nomUsuario" id="nomUsuario" placeholder="Ingresar el nuevo usuario del operador"  >
+                            <span id="error1"></span>
                             <div class="invalid-feedback ">El nombre de usuario es un campo obligatorio</div>
+                            <br>
+                            <ul class="ul-usuario">
+                                <li id="mayu">1 Mayuscula</li>
+                                <li id="min">4 Minusculas</li>
+                                <li id="digitos">2 Digitos.</li>
+                                <li id="especial">1 Caracter especiual.</li>
+                                <li id="caracteres">Minimo 8 caracteres.</li>
+                            </ul>
 
                         </div>
 
                         <div class="form-row">
                             <div class="col">
                                 <label>Contraseña*</label>
-                                <input type="password" class="form-control" name="pass1" id="textPass" placeholder="Password" >
+                                <input type="password" class="form-control" name="pass1" id="pass1" placeholder="Password" >
+                                <span id="error2"></span>
                                 <div class="invalid-feedback ">La contraseña debe ser obligatorio</div>
+                                <br>
+                                <ul class="ul-password">
+                                    <li id="mayus">1 Mayusculas.</li>
+                                    <li id="lower">11 Minusculas.</li>
+                                    <li id="numbers">3 Digitos.</li>
+                                    <li id="len">Minimo 15 caracteres.</li>
+                                </ul>
                             </div>
+
                             <div class="col">
                                 <label>Repita Contraseña*</label>
-                                <input type="password" class="form-control" name="pass2" id="textRepeatPass" placeholder="Password" >
+                                <input type="password" class="form-control" name="pass2" id="pass2" placeholder="Password" >
                                 <div class="invalid-feedback ">La contraseña debe ser igual dato</div>
+                                <span id="msg-error"></span>
+
                             </div>
                         </div>
-
-                        <br>
 
                         <div class="form-row">
-                            <div class="col">
-                                <label >Numero del Celular*</label>
-                                <input type="number" class="form-control" name="numCel" id="numCel"placeholder="Ingrese el numero de celular" >
-                                <div class="invalid-feedback ">El numero celular debe ser obligatorio</div>
-                            </div>
-                            <div class="col">
-                                <label >Numero del Telefono</label>
-                                <input type="number" class="form-control" name="numTel" id="numTel"placeholder="Ingrese el numero de telefonico" >
-                                <div class="invalid-feedback ">El numero telefonico debe ser obligatorio</div>
-                            </div>
-                        </div>
-
+                            <label >Perfil*</label>
+                            <select class="form-control" name="perfil" id="perfil">
+                                <option value="">Seleccionar perfil</option>
+                                <%//Listar los paises en la base de datos
+                                    List<Perfil> listaPerfil
+                                            = (List<Perfil>) request.getAttribute("lstPerfil");
+                                    for (Perfil perfil : listaPerfil) {
+                                        out.print("<option value='" + perfil.getIdPerfil()
+                                                + "'>" + perfil.getNombrePerfil() + "</option>");
+                                    }
+                                %>
+                            </select>
+                            <div class="invalid-feedback ">El campo perfil debe ser obligatorio</div>
+                        </div>  
                         <br>
-
-                        <div class="form-row">
-                            <div class="col">
-                                <label >Ciudad*</label>
-                                <select class="form-control" name="ciudad" id="ciudad">
-                                    <option>Seleccionar la ciudad</option>
-                                    <option value="Colombia">Colombia</option>
-                                    <option value="Mexico">Mexico</option>
-                                    <option value="Estados Unidos">Estados Unidos</option>
-                                </select>
-                                <div class="invalid-feedback ">El campo ciudad debe ser obligatorio</div>
-                            </div>
-                            <div class="col">
-                                <label >Pais</label>
-                                <input type="text" class="form-control" name="pais" id="pais "placeholder="Ingrese el pais" >
-                                <div class="invalid-feedback ">El campo pais debe ser obligatorio</div>
-                            </div>
-                        </div>
-
-                        <br>
-
-                        <div class="form-group">
-                            <label>Direccion Actual</label>
-                            <input type="text" name="direccion" id="direccion" class="form-control" placeholder="Ingresar la direccion actual">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Barrio</label>
-                            <input type="text" name="barrio" id="barrio" class="form-control" placeholder="Ingresar el barrio">
-                        </div>
-
                         <div class="form-check checkbox">
                             <input class="form-check-input" type="checkbox" id="check" >
                             <label class="form-check-label" for="check">
@@ -172,7 +157,7 @@
                         </div>
 
                         <br>
-                        <input type="submit" value="Registrar Usuario" class="btn btn-primary" id="btnGuardar">
+                        <input type="submit" value="Registrar Usuario" class="btn btn-primary btn-block" id="btnGuardar">
                     </form>
                 </div>
             </div>
@@ -187,6 +172,9 @@
     <script src="bootstrap/JS/bootstrap.min.js" type="text/javascript"></script>
     <script src="sweetarlert/sweetalert2.min.js" type="text/javascript"></script>
     <script src="js/validacionUsuario.js" type="text/javascript"></script>
+    <script src="js/nomUsuario.js" type="text/javascript"></script>
+    <script src="js/password.js" type="text/javascript"></script>
+    <script src="js/validacionLetras.js" type="text/javascript"></script>
 </body>
 
 </html>

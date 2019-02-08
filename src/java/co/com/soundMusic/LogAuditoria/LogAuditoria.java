@@ -2,10 +2,9 @@ package co.com.soundMusic.LogAuditoria;
 
 import co.com.soundMusic.Seguridad.Permisos.Permisos;
 import co.com.soundMusic.Login.Usuario.Usuario;
+import co.com.soundMusic.Login.Usuario.UsuarioDaoImpl;
 import co.com.soundMusic.Seguridad.Permisos.PermisosDaoImpl;
-import java.sql.Date;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,26 +19,22 @@ public class LogAuditoria {
     private Timestamp fecha;
     private Usuario usuario;
     private Permisos operaciones;
-    private int idPermiso;
 
     public LogAuditoria() {
     }
 
-    public LogAuditoria(int idLogAuditoria, Timestamp fecha, Usuario usuario,
-            int idPermiso) {
+    public LogAuditoria(int idLogAuditoria, Timestamp fecha, Usuario usuario, Permisos operaciones) {
         this.idLogAuditoria = idLogAuditoria;
         this.fecha = fecha;
         this.usuario = usuario;
-        this.idPermiso = idPermiso;
+        this.operaciones = operaciones;
     }
 
-    public LogAuditoria(int idLogAuditoria, Usuario usuario, int idPermiso) {
+    public LogAuditoria(int idLogAuditoria, Usuario usuario, Permisos operaciones) {
         this.idLogAuditoria = idLogAuditoria;
         this.usuario = usuario;
-        this.idPermiso = idPermiso;
+        this.operaciones = operaciones;
     }
-    
-    
 
     public int getIdLogAuditoria() {
         return idLogAuditoria;
@@ -65,29 +60,25 @@ public class LogAuditoria {
         this.operaciones = operaciones;
     }
 
-    public int getIdPermiso() {
-        return idPermiso;
-    }
-
-    public void setIdPermiso(int idPermiso) {
-        this.idPermiso = idPermiso;
-    }
-
-    public Timestamp getFecha2() {
+    public Timestamp getFecha() {
         return fecha;
     }
 
-    public void setFecha2(Timestamp fecha) {
+    public void setFecha(Timestamp fecha) {
         this.fecha = fecha;
     }
 
     public void obtenerPermiso() {
         PermisosDaoImpl daoPermisos = new PermisosDaoImpl();
         try {
-            this.setOperaciones(daoPermisos.obtenerPermiso(this.idPermiso));
+            this.setOperaciones(daoPermisos.obtenerPermiso(this.operaciones.getIdPermiso()));
         } catch (SQLException ex) {
             Logger.getLogger(LogAuditoria.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    public void obtenerUsuario() {
+        UsuarioDaoImpl daoUsuario = new UsuarioDaoImpl(true);
+        this.setUsuario(daoUsuario.obtenerUsuario(this.usuario.getIdUsuario()));
+    }
 }

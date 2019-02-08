@@ -1,11 +1,13 @@
 package co.com.soundMusic.EmpresaDifusora;
 
+import co.com.soundMusic.EmpresaDifusora.TipoCosto.CostoActividad;
+import co.com.soundMusic.EmpresaDifusora.TipoCosto.TipoEmpresaDifusora;
+import co.com.soundMusic.Negocio.Regalias.ArtistaEmpresa.ArtistaEmpresa;
 import co.com.soundMusic.Negocio.Regalias.ArtistaEmpresa.ArtistaEmpresaDaoImpl;
 import java.sql.Date;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -13,37 +15,37 @@ import java.util.logging.Logger;
  */
 public class EmpresaDifusora {
 
-    private int idEmpresaDifusora;
+    private Integer idEmpresaDifusora;
     private String nombre;
     private Date fechaCreacion;
     private Date fechaTerminacion;
     private String status;
-    private String rutaImagen;
-    private int idTipoActividad;
-    private int idContacto;
-    private int idCostoOperacion;
+    private TipoEmpresaDifusora tipoActividad;
+    private CostoActividad costoOperacion;
 
     public EmpresaDifusora() {
+        this.tipoActividad = new TipoEmpresaDifusora();
+        this.costoOperacion = new CostoActividad();
     }
 
-    public EmpresaDifusora(int idEmpresaDifusora, String nombre, Date fechaCreacion, Date fechaTerminacion,
-            String status, String rutaImagen, int idTipoActividad, int idContacto, int idCostoOperacion) {
+    public EmpresaDifusora(Integer idEmpresaDifusora, String nombre, Date fechaCreacion, Date fechaTerminacion,
+            String status, Integer idTipoActividad, Integer idCostoOperacion) {
         this.idEmpresaDifusora = idEmpresaDifusora;
         this.nombre = nombre;
         this.fechaCreacion = fechaCreacion;
         this.fechaTerminacion = fechaTerminacion;
         this.status = status;
-        this.rutaImagen = rutaImagen;
-        this.idTipoActividad = idTipoActividad;
-        this.idContacto = idContacto;
-        this.idCostoOperacion = idCostoOperacion;
+        this.tipoActividad = new TipoEmpresaDifusora();
+        this.costoOperacion = new CostoActividad();
+        this.tipoActividad.setIdTipoActividad(idTipoActividad);
+        this.costoOperacion.setIdCostoActividad(idCostoOperacion);
     }
 
-    public int getIdEmpresaDifusora() {
+    public Integer getIdEmpresaDifusora() {
         return idEmpresaDifusora;
     }
 
-    public void setIdEmpresaDifusora(int idEmpresaDifusora) {
+    public void setIdEmpresaDifusora(Integer idEmpresaDifusora) {
         this.idEmpresaDifusora = idEmpresaDifusora;
     }
 
@@ -79,36 +81,20 @@ public class EmpresaDifusora {
         this.status = status;
     }
 
-    public String getRutaImagen() {
-        return rutaImagen;
+    public TipoEmpresaDifusora getTipoActividad() {
+        return tipoActividad;
     }
 
-    public void setRutaImagen(String rutaImagen) {
-        this.rutaImagen = rutaImagen;
+    public void setTipoActividad(TipoEmpresaDifusora tipoActividad) {
+        this.tipoActividad = tipoActividad;
     }
 
-    public int getIdTipoActividad() {
-        return idTipoActividad;
+    public CostoActividad getCostoOperacion() {
+        return costoOperacion;
     }
 
-    public void setTipoActividad(int idTipoActividad) {
-        this.idTipoActividad = idTipoActividad;
-    }
-
-    public int getIdCostoOperacion() {
-        return idCostoOperacion;
-    }
-
-    public void setIdCostoOperacion(int idCostoOperacion) {
-        this.idCostoOperacion = idCostoOperacion;
-    }
-
-    public int getIdContacto() {
-        return idContacto;
-    }
-
-    public void setIdContacto(int idContacto) {
-        this.idContacto = idContacto;
+    public void setCostoOperacion(CostoActividad costoOperacion) {
+        this.costoOperacion = costoOperacion;
     }
 
     @Override
@@ -131,22 +117,22 @@ public class EmpresaDifusora {
             return false;
         }
         final EmpresaDifusora other = (EmpresaDifusora) obj;
-        if (this.idEmpresaDifusora != other.idEmpresaDifusora) {
+        if (!Objects.equals(this.nombre, other.nombre)) {
             return false;
         }
-        if (!Objects.equals(this.nombre, other.nombre)) {
+        if (!Objects.equals(this.idEmpresaDifusora, other.idEmpresaDifusora)) {
             return false;
         }
         return true;
     }
 
-    public int getNumeroArtistas() {
-        ArtistaEmpresaDaoImpl daoArtistaEmpresa = new ArtistaEmpresaDaoImpl();
-        try {
-            return daoArtistaEmpresa.obtenerEmpresasPorArtista(this.idEmpresaDifusora).size();
-        } catch (SQLException ex) {
-            Logger.getLogger(EmpresaDifusora.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return 0;
+    /*public Integer getNumeroArtistas() {
+        ArtistaEmpresaDaoImpl daoArtistaEmpresa = new ArtistaEmpresaDaoImpl(true);
+        return daoArtistaEmpresa.obtenerNumeroDeArtistas(this.idEmpresaDifusora);
+    }*/
+    public int[] getNumeroArtistas(List<EmpresaDifusora> lstEmpresa) {
+        ArtistaEmpresaDaoImpl daoArtistaEmpresa = new ArtistaEmpresaDaoImpl(true);
+        int[] numeroArtistas = daoArtistaEmpresa.obtenerNumeroDeArtistas2(lstEmpresa);
+        return numeroArtistas;
     }
 }

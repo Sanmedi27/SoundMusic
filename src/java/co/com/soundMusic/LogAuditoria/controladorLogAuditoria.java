@@ -98,7 +98,7 @@ public class controladorLogAuditoria extends HttpServlet {
 
     private void mostrarPaginaAuditoria(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
-        LogAuditoriaDaoImpl daoLogAuditoria = new LogAuditoriaDaoImpl();
+        LogAuditoriaDaoImpl daoLogAuditoria = new LogAuditoriaDaoImpl(true);
         List<LogAuditoria> lstLogAuditoria = daoLogAuditoria.obtenerLogAuditoria();
         request.setAttribute("lstLogAuditoria", lstLogAuditoria);
         request.getRequestDispatcher("/auditoria.jsp").forward(request, response);

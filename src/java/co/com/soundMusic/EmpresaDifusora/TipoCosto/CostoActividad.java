@@ -16,6 +16,10 @@ public class CostoActividad {
     public CostoActividad() {
     }
 
+    public CostoActividad(int idCostoActividad) {
+        this.idCostoActividad = idCostoActividad;
+    }
+
     public CostoActividad(int idCostoActividad, float costoPorOperacion, Date fechaCreacion, Date fechaUsoFinal) {
         this.idCostoActividad = idCostoActividad;
         this.costoPorOperacion = costoPorOperacion;

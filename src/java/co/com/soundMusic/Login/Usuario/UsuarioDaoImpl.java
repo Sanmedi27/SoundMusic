@@ -1,165 +1,321 @@
 package co.com.soundMusic.Login.Usuario;
 
+import co.com.soundMusic.Login.CuentaUsuario.UsuarioLogin;
+import co.com.soundMusic.Seguridad.Perfiles.Perfil;
 import co.com.soundMusic.utilidades.DBUtil;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.dbutils.DbUtils;
 
 /**
  *
  * @author Santiago Medina Pelaez
+ * @since 0.0.
  */
 public class UsuarioDaoImpl implements IUsuarioDao {
 
+    //Conexion a la base de datos
     private Connection conexion;
+    private Boolean isProduction = true;
+    private Statement stmt;
+    private ResultSet rs;
+    //Constantes con las querys a la base de datos
+    private static final String SELECT_USUARIOS;
+    private static final String SELECT_USUARIO_POR_ID;
+    private static final String INSERT_USUARIO;
+    private static final String UPDATE_STATUS;
+    private static final String UPDTAE_USUARIO;
+    private static final String SELECT_ULTIMO_ID;
 
-    public UsuarioDaoImpl() {
-        conexion = DBUtil.getConexion();
+    /**
+     *
+     * @param production
+     */
+    public UsuarioDaoImpl(Boolean production) {
+        isProduction = production;
     }
 
     @Override
-    public List<Usuario> obtenerUsuarios() throws SQLException {
+    public List<Usuario> obtenerUsuarios() {
+        getConexion();
         List<Usuario> listaUsuarios = new ArrayList<>();
+        try {
+            stmt = conexion.createStatement();
+            rs = stmt.executeQuery(SELECT_USUARIOS);
 
-        Statement stmt = conexion.createStatement();
-        String sql = "SELECT ID_USUARIO,PRIMER_NOMBRE,SEGUNDO_NOMBRE,PRIMER_APELLIDO,SEGUNDO_APELLIDO,\n"
-                + "FECHA_CREACION,STATUS,GENERO,ID_PERFIL,ID_USUARIO_LOGIN,ID_CONTACTO\n"
-                + "FROM USUARIO";
+            while (rs.next()) {
+                Perfil perfil = new Perfil();
+                UsuarioLogin usuarioLogin = new UsuarioLogin();
+                Usuario usuario = new Usuario();
 
-        ResultSet rs = stmt.executeQuery(sql);
+                //Datos Perfil
+                perfil.setIdPerfil(rs.getInt("ID_PERFIL"));
+                perfil.setNombrePerfil(rs.getString("NOMBRE_PERFIL"));
 
-        while (rs.next()) {
-            int idUsuario = rs.getInt("ID_USUARIO");
-            String primerNombre = rs.getString("PRIMER_NOMBRE");
-            String segundoNombre = rs.getString("SEGUNDO_NOMBRE");
-            String primerApellido = rs.getString("PRIMER_APELLIDO");
-            String segundoApellido = rs.getString("SEGUNDO_APELLIDO");
-            Date fechaCreacion = rs.getDate("FECHA_CREACION");
-            String status = rs.getString("STATUS");
-            String genero = rs.getString("GENERO");
-            int idPerfilUsuario = rs.getInt("ID_PERFIL");
-            int idLoginUsuario = rs.getInt("ID_USUARIO_LOGIN");
-            int idContacto = rs.getInt("ID_CONTACTO");
+                //Datos Usuario_Login
+                usuarioLogin.setIdUsuarioLogin(rs.getInt("ID_USUARIO_LOGIN"));
+                usuarioLogin.setNombreUsuario(rs.getString("NOMBRE_USUARIO"));
+                usuarioLogin.setContrasena(rs.getString("CONTRASENA"));
 
-            Usuario usuario = new Usuario(idUsuario, primerNombre, segundoNombre,
-                    primerApellido, segundoApellido, fechaCreacion, status,
-                    genero, idPerfilUsuario, idLoginUsuario, idContacto);
+                //Datos Usuario
+                usuario.setIdUsuario(rs.getInt("ID_USUARIO"));
+                usuario.setPrimerNombre(rs.getString("PRIMER_NOMBRE"));
+                usuario.setSegundoNombre(validacion(rs.getString("SEGUNDO_NOMBRE")));
+                usuario.setPrimerApellido(rs.getString("PRIMER_APELLIDO"));
+                usuario.setSegundoApellido(validacion(rs.getString("SEGUNDO_APELLIDO")));
+                usuario.setFechaCreacion(rs.getDate("FECHA_CREACION"));
+                usuario.setStatus(rs.getString("STATUS"));
+                usuario.setGenero(validacion(rs.getString("GENERO")));
+                usuario.setPerfil(perfil);
+                usuario.setUsuarioLogin(usuarioLogin);
 
-            usuario.obtenerContactoUsuario();
-            usuario.obtenerPerfilUsuario();
-            usuario.obtenerUsuarioLogin();
+                listaUsuarios.add(usuario);
+            }
+        } catch (SQLException | NullPointerException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
 
-            listaUsuarios.add(usuario);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(rs);
+                    DbUtils.closeQuietly(stmt);
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-
-        stmt.close();
         return listaUsuarios;
     }
 
     @Override
-    public Usuario obtenerUsuario(int idUsuario) throws SQLException {
-        String sql = "SELECT ID_USUARIO,PRIMER_NOMBRE,SEGUNDO_NOMBRE,PRIMER_APELLIDO,SEGUNDO_APELLIDO,\n"
-                + "FECHA_CREACION,STATUS,GENERO,ID_PERFIL,ID_USUARIO_LOGIN,ID_CONTACTO\n"
-                + "FROM USUARIO\n"
-                + "WHERE ID_USUARIO=?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setInt(1, idUsuario);
-        ResultSet rs = ps.executeQuery();
+    public Usuario obtenerUsuario(int idUsuario) {
+        getConexion();
+        Usuario usuario = new Usuario();
+        try {
+            PreparedStatement ps = conexion.prepareStatement(SELECT_USUARIO_POR_ID);
+            ps.setInt(1, idUsuario);
+            rs = ps.executeQuery();
 
-        while (rs.next()) {
-            String primerNombre = rs.getString("PRIMER_NOMBRE");
-            String segundoNombre = rs.getString("SEGUNDO_NOMBRE");
-            String primerApellido = rs.getString("PRIMER_APELLIDO");
-            String segundoApellido = rs.getString("SEGUNDO_APELLIDO");
-            Date fechaCreacion = rs.getDate("FECHA_CREACION");
-            String status = rs.getString("STATUS");
-            String genero = rs.getString("GENERO");
-            int idPerfilUsuario = rs.getInt("ID_PERFIL");
-            int idLoginUsuario = rs.getInt("ID_USUARIO_LOGIN");
-            int idContacto = rs.getInt("ID_CONTACTO");
+            while (rs.next()) {
+                Perfil perfil = new Perfil();
+                UsuarioLogin usuarioLogin = new UsuarioLogin();
 
-            Usuario usuario = new Usuario(idUsuario, primerNombre, segundoNombre,
-                    primerApellido, segundoApellido, fechaCreacion, status,
-                    genero, idPerfilUsuario, idLoginUsuario, idContacto);
+                //Datos Perfil
+                perfil.setIdPerfil(rs.getInt("ID_PERFIL"));
+                perfil.setNombrePerfil(rs.getString("NOMBRE_PERFIL"));
 
-            usuario.obtenerContactoUsuario();
-            usuario.obtenerPerfilUsuario();
-            usuario.obtenerUsuarioLogin();
+                //Datos Usuario_Login
+                usuarioLogin.setIdUsuarioLogin(rs.getInt("ID_USUARIO_LOGIN"));
+                usuarioLogin.setNombreUsuario(rs.getString("NOMBRE_USUARIO"));
+                usuarioLogin.setContrasena(rs.getString("CONTRASENA"));
 
-            return usuario;
+                //Datos Usuario
+                usuario.setIdUsuario(rs.getInt("ID_USUARIO"));
+                usuario.setPrimerNombre(rs.getString("PRIMER_NOMBRE"));
+                usuario.setSegundoNombre(validacion(rs.getString("SEGUNDO_NOMBRE")));
+                usuario.setPrimerApellido(rs.getString("PRIMER_APELLIDO"));
+                usuario.setSegundoApellido(validacion(rs.getString("SEGUNDO_APELLIDO")));
+                usuario.setFechaCreacion(rs.getDate("FECHA_CREACION"));
+                usuario.setStatus(rs.getString("STATUS"));
+                usuario.setGenero(validacion(rs.getString("GENERO")));
+                usuario.setPerfil(perfil);
+                usuario.setUsuarioLogin(usuarioLogin);
+
+                return usuario;
+            }
+        } catch (SQLException | NullPointerException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.close(rs);
+                    DbUtils.close(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException | SQLException ex) {
+                Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-
-        return null;
+        return usuario;
     }
 
     @Override
-    public void crearUsuario(Usuario usuario) throws SQLException {
-        String sql = "INSERT INTO USUARIO (PRIMER_NOMBRE,SEGUNDO_NOMBRE,PRIMER_APELLIDO,SEGUNDO_APELLIDO,\n"
-                + "FECHA_CREACION,STATUS,GENERO,ID_PERFIL,ID_USUARIO_LOGIN,ID_CONTACTO\n"
-                + "VALUES (?,?,?,?,?,?,?,?,?,?)";
-        PreparedStatement ps = conexion.prepareStatement(sql);
+    public int crearUsuario(Usuario usuario) {
+        getConexion();
+        int id = -1;
+        try {
+            PreparedStatement ps = conexion.prepareStatement(INSERT_USUARIO);
 
-        ps.setString(1, usuario.getPrimerNombre());
-        ps.setString(2, usuario.getSegundoNombre());
-        ps.setString(3, usuario.getPrimerApellido());
-        ps.setString(4, usuario.getSegundoApellido());
-        ps.setDate(5, usuario.getFechaCreacion());
-        ps.setString(6, usuario.getStatus());
-        ps.setString(7, usuario.getGenero());
-        ps.setInt(8, usuario.getIdPerfil());
-        ps.setInt(9, usuario.getIdUsuarioLogin());
-        ps.setInt(10, usuario.getIdContacto());
-        ps.executeUpdate();
+            ps.setString(1, usuario.getPrimerNombre());
+            ps.setString(2, usuario.getSegundoNombre());
+            ps.setString(3, usuario.getPrimerApellido());
+            ps.setString(4, usuario.getSegundoApellido());
+            ps.setDate(5, usuario.getFechaCreacion());
+            ps.setString(6, usuario.getStatus());
+            ps.setString(7, usuario.getGenero());
+            ps.setInt(8, usuario.getPerfil().getIdPerfil());
+            ps.setInt(9, usuario.getUsuarioLogin().getIdUsuarioLogin());
+            ps.executeUpdate();
+            id = getUltimoIdUsuario();
+        } catch (SQLException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.close(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException | SQLException ex) {
+                Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return id;
     }
 
     @Override
-    public void eliminarUsuario(String status, int idUsuario) throws SQLException {
-        String sql = "UPDATE USUARIO\n"
+    public void eliminarUsuario(String status, int idUsuario) {
+        getConexion();
+        try {
+            PreparedStatement ps = conexion.prepareStatement(UPDATE_STATUS);
+            ps.setString(1, status);
+            ps.setInt(2, idUsuario);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.close(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException | SQLException ex) {
+                Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    @Override
+    public void actualizarUsuario(Usuario usuario) {
+        getConexion();
+        try {
+            PreparedStatement ps = conexion.prepareStatement(UPDTAE_USUARIO);
+
+            ps.setString(1, usuario.getPrimerNombre());
+            ps.setString(2, usuario.getSegundoNombre());
+            ps.setString(3, usuario.getPrimerApellido());
+            ps.setString(4, usuario.getSegundoApellido());
+            ps.setString(5, usuario.getStatus());
+            ps.setString(6, usuario.getGenero());
+            ps.setInt(7, usuario.getPerfil().getIdPerfil());
+            ps.setInt(8, usuario.getUsuarioLogin().getIdUsuarioLogin());
+            ps.setInt(9, usuario.getIdUsuario());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public int getUltimoIdUsuario() {
+        int idUsuario = -1;
+        try {
+            PreparedStatement ps = conexion.prepareStatement(SELECT_ULTIMO_ID);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                idUsuario = rs.getInt("CURRVAL");
+                return idUsuario;
+            }
+        } catch (SQLException | NullPointerException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.close(rs);
+                    DbUtils.close(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException | SQLException ex) {
+                Logger.getLogger(UsuarioDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return idUsuario;
+    }
+
+    static {
+        SELECT_USUARIOS = "SELECT US.ID_USUARIO,US.PRIMER_NOMBRE,US.SEGUNDO_NOMBRE,US.PRIMER_APELLIDO,US.SEGUNDO_APELLIDO,\n"
+                + "US.FECHA_CREACION,US.STATUS,US.GENERO,US.ID_PERFIL,US.ID_USUARIO_LOGIN,\n"
+                + "PER.NOMBRE_PERFIL, US_LO.NOMBRE_USUARIO, US_LO.CONTRASENA\n"
+                + "FROM USUARIO US INNER JOIN PERFIL PER\n"
+                + "ON US.ID_PERFIL = PER.ID_PERFIL\n"
+                + "INNER JOIN USUARIO_LOGIN US_LO\n"
+                + "ON US.ID_USUARIO_LOGIN = US_LO.ID_USUARIO_LOGIN\n"
+                + "ORDER BY ID_USUARIO";
+
+        SELECT_USUARIO_POR_ID = "SELECT US.PRIMER_NOMBRE,US.SEGUNDO_NOMBRE,US.PRIMER_APELLIDO,US.SEGUNDO_APELLIDO,\n"
+                + "US.FECHA_CREACION,US.STATUS,US.GENERO,US.ID_PERFIL,US.ID_USUARIO_LOGIN,\n"
+                + "PER.NOMBRE_PERFIL, US_LO.NOMBRE_USUARIO, US_LO.CONTRASENA\n"
+                + "FROM USUARIO US INNER JOIN PERFIL PER\n"
+                + "ON US.ID_PERFIL = PER.ID_PERFIL\n"
+                + "INNER JOIN USUARIO_LOGIN US_LO\n"
+                + "ON US.ID_USUARIO_LOGIN = US_LO.ID_USUARIO_LOGIN \n"
+                + "WHERE ID_USUARIO=?";
+
+        INSERT_USUARIO = "INSERT INTO USUARIO (PRIMER_NOMBRE,SEGUNDO_NOMBRE,PRIMER_APELLIDO,SEGUNDO_APELLIDO,\n"
+                + "FECHA_CREACION,STATUS,GENERO,ID_PERFIL,ID_USUARIO_LOGIN)\n"
+                + "VALUES (?,?,?,?,?,?,?,?,?)";
+
+        UPDATE_STATUS = "UPDATE USUARIO\n"
                 + "SET STATUS=?\n"
-                + "WHERE ID_USUARIO=?;";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setString(1, status);
-        ps.setInt(2, idUsuario);
-        ps.executeUpdate();
-    }
-
-    @Override
-    public void actualizarUsuario(Usuario usuario) throws SQLException {
-        String sql = "UPDATE USUARIO\n"
-                + "SET PRIMER_NOMBRE=?,SEGUNDO_NOMBRE=?,PRIMER_APELLIDO=?,SEGUNDO_APELLIDO=?,\n"
-                + "FECHA_CREACION=?,STATUS=?, GENERO=?,ID_PERFIL_USUARIO=?,ID_LOGIN_USUARIO=?,ID_CONTACTO_USUARIO=?\n"
                 + "WHERE ID_USUARIO=?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
 
-        ps.setString(1, usuario.getPrimerNombre());
-        ps.setString(2, usuario.getSegundoNombre());
-        ps.setString(3, usuario.getPrimerApellido());
-        ps.setString(4, usuario.getSegundoApellido());
-        ps.setDate(5, usuario.getFechaCreacion());
-        ps.setString(6, usuario.getStatus());
-        ps.setString(7, usuario.getGenero());
-        ps.setInt(8, usuario.getIdPerfil());
-        ps.setInt(9, usuario.getIdUsuarioLogin());
-        ps.setInt(10, usuario.getIdContacto());
-        ps.setInt(11, usuario.getIdUsuario());
-        ps.executeUpdate();
+        UPDTAE_USUARIO = "UPDATE USUARIO\n"
+                + "SET PRIMER_NOMBRE=?,SEGUNDO_NOMBRE=?,PRIMER_APELLIDO=?,SEGUNDO_APELLIDO=?,\n"
+                + "STATUS=?, GENERO=?,ID_PERFIL=?,ID_USUARIO_LOGIN=?\n"
+                + "WHERE ID_USUARIO=?";
+
+        SELECT_ULTIMO_ID = "SELECT USUARIO_SEQ.CURRVAL\n"
+                + "FROM DUAL";
     }
 
-    public int getUltimoIdUsuario() throws SQLException {
-        String sql = "SELECT USUARIO_SEQ.CURRVAL\n"
-                + "FROM DUAL";
-
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery(sql);
-        while (rs.next()) {
-            int idUsuario = rs.getInt("CURRVAL");
-            return idUsuario;
+    private String validacion(String aValidar) {
+        if (aValidar != null) {
+            return aValidar.trim();
+        } else {
+            return "";
         }
-        return -1;
-    }               
+    }
+
+    private void getConexion() {
+        if (isProduction) {
+            conexion = DBUtil.getConexion();
+        } else {
+            conexion = DBUtil.getTestConexion();
+        }
+        stmt = null;
+        rs = null;
+    }
 }

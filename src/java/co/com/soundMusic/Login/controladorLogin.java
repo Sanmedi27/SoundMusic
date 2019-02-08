@@ -9,13 +9,10 @@ import co.com.soundMusic.LogAuditoria.LogAuditoria;
 import co.com.soundMusic.LogAuditoria.LogAuditoriaDaoImpl;
 import co.com.soundMusic.Login.Usuario.Usuario;
 import co.com.soundMusic.Login.Usuario.controladorUsuario;
+import co.com.soundMusic.Seguridad.Permisos.Permisos;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Date;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -116,6 +113,7 @@ public class controladorLogin extends HttpServlet {
         HttpSession sessionUsuario = request.getSession(true);
         if (nomUsuario.equalsIgnoreCase("admin") & password.equalsIgnoreCase("admin")) {
             sessionUsuario.setAttribute("nomUsuario", nomUsuario);
+            sessionUsuario.setAttribute("usuarioId", 1);
             response.sendRedirect("home.jsp");
         } else {
             Usuario usuario = new Usuario();
@@ -125,10 +123,9 @@ public class controladorLogin extends HttpServlet {
                     & usuario.getUsuarioLogin().getContrasena().equalsIgnoreCase(password)) {
 
                 sessionUsuario.setAttribute("nomUsuario", nomUsuario);
+                sessionUsuario.setAttribute("usuarioId", usuario.getIdUsuario());
 
-                LogAuditoriaDaoImpl daoLogAuditoria = new LogAuditoriaDaoImpl();
-                daoLogAuditoria.crearLog(new LogAuditoria(0, usuario, 1)); //1 representa fila 1 de tabla permiso= Iniciar Sesion.
-
+                //ingresarLogAuditoria(usuario.getIdUsuario(), 1); //1 representa fila 1 de tabla permiso= Iniciar Sesion.
                 response.sendRedirect("home.jsp");
             } else {
                 response.sendRedirect("login.jsp");
@@ -140,8 +137,14 @@ public class controladorLogin extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.getRequestDispatcher("navbar.jsp").include(request, response);
-        HttpSession sessionUsuario = request.getSession();
+        HttpSession sessionUsuario = request.getSession(false);
+        //ingresarLogAuditoria((int) sessionUsuario.getAttribute("usuarioId"), 2);//2 representa fila 2 de tabla permiso= Cerrar Sesion.
         sessionUsuario.invalidate();
         response.sendRedirect("login.jsp");
+    }
+
+    private void ingresarLogAuditoria(int idUsuario, int idPermisos) {
+        LogAuditoriaDaoImpl daoLogAuditoria = new LogAuditoriaDaoImpl(true);
+        daoLogAuditoria.crearLog(new LogAuditoria(0, new Usuario(idUsuario), new Permisos(idPermisos)));
     }
 }

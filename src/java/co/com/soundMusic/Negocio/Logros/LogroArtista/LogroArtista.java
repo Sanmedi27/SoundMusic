@@ -81,20 +81,13 @@ public class LogroArtista {
     }
 
     public void obtenerArtista() {
-        ArtistaDaoImpl daoArtista = new ArtistaDaoImpl();
-        try {
-            this.setArtista(daoArtista.obtenerArtista(this.idArtista));
-        } catch (SQLException ex) {
-            Logger.getLogger(LogroArtista.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        ArtistaDaoImpl daoArtista = new ArtistaDaoImpl(true);
+        this.setArtista(daoArtista.obtenerArtista(this.idArtista));
+
     }
 
     public void obtenerLogro() {
-        LogroDaoImpl daoLogro = new LogroDaoImpl();
-        try {
-            this.setLogro(daoLogro.obtenerLogro(this.idLogro));
-        } catch (SQLException ex) {
-            Logger.getLogger(LogroArtista.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        LogroDaoImpl daoLogro = new LogroDaoImpl(true);
+        this.setLogro(daoLogro.obtenerLogro(this.idLogro));
     }
 }

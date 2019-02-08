@@ -1,4 +1,6 @@
-
+<%@page import="co.com.soundMusic.Seguridad.Perfiles.Perfil"%>
+<%@page import="java.util.List"%>
+<%@page import="co.com.soundMusic.Login.Usuario.Usuario"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -29,30 +31,36 @@
                 <div class="col-md-8">
 
                     <h3>Modificar Usuario</h3>
+                    <%
+                        Usuario usuario = (Usuario) request.getAttribute("usuarioEditar");
+                    %>
                     <hr>
                     <br>
 
                     <div class="row">
                         <div class="col">
-                            <a href="usuario.jsp" class="btn btn-danger" id="btn-regresar">Regresar</a>
+                            <a href="controladorUsuario?opcion=listarUsuarios" class="btn btn-danger" id="btn-regresar">Regresar</a>
                         </div>
                     </div>
 
                     <br>
 
-                    <form name="formulario_usuario" action="" method="post">
+                    <form name="formulario_usuario" action="controladorUsuario" method="post">
                         <input type="hidden" name="cod" value="0">
-
+                        <input type="hidden" name="operacion" id="operacion" value="editar" >  
+                        <% out.println("<input type='hidden' name='IdUsuario' id='IdUsuario' readonly value='" + usuario.getIdUsuario() + "'/>");
+                            out.println("<input type='hidden' name='idUsuarioLogin' id='idUsuarioLogin' readonly value='" + usuario.getUsuarioLogin().getIdUsuarioLogin() + "'/>");
+                        %>  
                         <div class="form-row">
                             <div class="col">
-                                <label>Primer Nombre*</label>
-                                <input type="text" class="form-control " name="nombre1" id="nom1 texto" placeholder="Ingresar el primer nombre" >
+                                <label>Primer Nombre*</label>                                
+                                <% out.println("<input type='text' class='form-control' name='nombre1' id='nom1 texto' value='" + usuario.getPrimerNombre() + "'/>");%> 
                                 <div class="invalid-feedback ">El primer nombre es un campo obligatorio</div>
 
                             </div>
                             <div class="col">
                                 <label>Segundo Nombre</label>
-                                <input type="text" class="form-control" name="nombre2" id="nom2" placeholder="Ingresar el segundo nombre">
+                                <% out.println("<input type='text' class='form-control' name='nombre2' id='nombre2 texto' value='" + usuario.getSegundoNombre() + "'/>");%> 
                             </div>
                         </div>
 
@@ -61,13 +69,13 @@
                         <div class="form-row">
                             <div class="col">
                                 <label>Primer Apellido*</label>
-                                <input type="text" class="form-control " name="apellido1" id="apellido1 texto" placeholder="Ingresar el primer apellido " >
+                                <% out.println("<input type='text' class='form-control' name='apellido1' id='apellido1 texto' value='" + usuario.getPrimerApellido() + "'/>");%> 
                                 <div class="invalid-feedback ">El primer apellido es un campo obligatorio</div>
 
                             </div>
                             <div class="col">
                                 <label>Segundo Apellido*</label>
-                                <input type="text" class="form-control " name="apellido2" id="apellido2 texto" placeholder="Ingresar el segundo apellido">
+                                <% out.println("<input type='text' class='form-control' name='apellido2' id='apellido2 texto' value='" + usuario.getSegundoApellido() + "'/>");%> 
                                 <div class="invalid-feedback ">El segundo apellido es un campo obligatorio</div>
                             </div>
                         </div>
@@ -75,27 +83,25 @@
                         <div class="form-group radio">
                             <br>
                             <h8>Genero*</h8>
-                            <br>
-                            <input class="form-check-input " type="radio" name="sexo" id="textSex1" value="Masculino" >
+                            <br>                            
+                            <%if (usuario.getGenero().equalsIgnoreCase("M")) {
+                                    out.println("<input class='form-check-input ' type='radio' name='sexo' id='textSex1' value='M' checked>");%>
                             <label class="form-check-label " for="textSex1">Masculino</label>
-
-                            <input class="form-check-input " type="radio" name="sexo" id="textSex2" value="Femenino">
+                            <%out.println("<input class='form-check-input ' type='radio' name='sexo' id='textSex2' value='F'>");%>
                             <label class="form-check-label" for="textSex2">Femenino</label>
+                            <%} else {
+                                out.println("<input class='form-check-input ' type='radio' name='sexo' id='textSex1' value='M'>");%>
+                            <label class="form-check-label " for="textSex1">Masculino</label>
+                            <%out.println("<input class='form-check-input ' type='radio' name='sexo' id='textSex2' value='F' checked>");%>
+                            <label class="form-check-label" for="textSex2">Femenino</label>
+                            <%}%>
                             <br>
                             <div class="invalid-feedback ">Debe seleccionar un campo</div>
 
                         </div>
-
-                        <div class="form-group">
-                            <label>Correo*</label>
-                            <input type="email" name="email" id="email" class="form-control" placeholder="Ingresar el correo electronico">
-                            <div class="invalid-feedback ">El correo electronico es un campo obligatorio</div>
-
-                        </div>
-
                         <div class="form-group">
                             <label>Nombre del Usuario*</label>
-                            <input type="text" class="form-control" name="nomUsuario" id="textNameUser" placeholder="Ingresar el nuevo usuario del operador" >
+                            <% out.println("<input type='text' class='form-control' name='nomUsuario' id='textNameUser' value='" + usuario.getUsuarioLogin().getNombreUsuario() + "'>");%>
                             <div class="invalid-feedback ">El nombre de usuario es un campo obligatorio</div>
 
                         </div>
@@ -103,63 +109,40 @@
                         <div class="form-row">
                             <div class="col">
                                 <label>Contraseña*</label>
-                                <input type="password" class="form-control" name="pass1" id="textPass" placeholder="Password" >
+                                <% out.println("<input type='password' class='form-control' name='pass1' id='textPass' value='" + usuario.getUsuarioLogin().getContrasena() + "' >");%>
                                 <div class="invalid-feedback ">La contraseña debe ser obligatorio</div>
                             </div>
                             <div class="col">
                                 <label>Repita Contraseña*</label>
-                                <input type="password" class="form-control" name="pass2" id="textRepeatPass" placeholder="Password" >
+                                <% out.println("<input type='password' class='form-control' name='pass2' id='textRepeatPass' value='" + usuario.getUsuarioLogin().getContrasena() + "' >");%>
                                 <div class="invalid-feedback ">La contraseña debe ser igual dato</div>
                             </div>
                         </div>
 
                         <br>
-
                         <div class="form-row">
-                            <div class="col">
-                                <label >Numero del Celular*</label>
-                                <input type="number" class="form-control" name="numCel" id="numCel"placeholder="Ingrese el numero de celular" >
-                                <div class="invalid-feedback ">El numero celular debe ser obligatorio</div>
-                            </div>
-                            <div class="col">
-                                <label >Numero del Telefono</label>
-                                <input type="number" class="form-control" name="numTel" id="numTel"placeholder="Ingrese el numero de telefonico" >
-                                <div class="invalid-feedback ">El numero telefonico debe ser obligatorio</div>
-                            </div>
-                        </div>
+                            <label >Perfil*</label>
+                            <select class="form-control" name="perfil" id="perfil">                                
+                                <%//Listar los perfiles en la base de datos
+                                    out.print("<option value='" + usuario.getPerfil().getIdPerfil()
+                                            + "'>" + usuario.getPerfil().getNombrePerfil() + "</option>");
 
+                                    List<Perfil> listaPerfil
+                                            = (List<Perfil>) request.getAttribute("lstPerfil");
+                                    for (Perfil perfil : listaPerfil) {
+                                        if (usuario.getPerfil().getIdPerfil() == perfil.getIdPerfil()) {
+                                            continue;
+                                        } else {
+                                            out.print("<option value='" + perfil.getIdPerfil()
+                                                    + "'>" + perfil.getNombrePerfil() + "</option>");
+                                        }
+                                    }
+                                %>
+                            </select>
+                            <div class="invalid-feedback ">El campo perfil debe ser obligatorio</div>
+                        </div>
                         <br>
-
-                        <div class="form-row">
-                            <div class="col">
-                                <label >Ciudad*</label>
-                                <select class="form-control" name="ciudad" id="ciudad">
-                                    <option>Seleccionar la ciudad</option>
-                                    <option value="Colombia">Colombia</option>
-                                    <option value="Mexico">Mexico</option>
-                                    <option value="Estados Unidos">Estados Unidos</option>
-                                </select>
-                                <div class="invalid-feedback ">El campo ciudad debe ser obligatorio</div>
-                            </div>
-                            <div class="col">
-                                <label >Pais</label>
-                                <input type="text" class="form-control" name="pais" id="pais "placeholder="Ingrese el pais" >
-                                <div class="invalid-feedback ">El campo pais debe ser obligatorio</div>
-                            </div>
-                        </div>
-
                         <br>
-
-                        <div class="form-group">
-                            <label>Direccion Actual</label>
-                            <input type="text" name="direccion" id="direccion" class="form-control" placeholder="Ingresar la direccion actual">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Barrio</label>
-                            <input type="text" name="barrio" id="barrio" class="form-control" placeholder="Ingresar el barrio">
-                        </div>
-
                         <div class="form-check checkbox">
                             <input class="form-check-input" type="checkbox" id="check" >
                             <label class="form-check-label" for="check">
@@ -169,7 +152,7 @@
                         </div>
 
                         <br>
-                        <input type="submit" value="Registrar Usuario" class="btn btn-primary" id="btnGuardar">
+                        <input type="submit" value="Mofidicar Usuario" class="btn btn-primary" id="btnGuardar">
                     </form>
                 </div>
             </div>

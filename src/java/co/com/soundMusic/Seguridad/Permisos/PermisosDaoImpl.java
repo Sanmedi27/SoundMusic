@@ -15,7 +15,15 @@ import java.util.List;
  */
 public class PermisosDaoImpl implements IPermisosDao {
 
+    //Conexion a la base de datos
     private Connection conexion;
+
+    //Constantes con las querys a la base de datos
+    private static final String SELECT_PERMISOS;
+    private static final String SELECT_PERMISO_POR_ID;
+    private static final String INSERT_PERMISO;
+    private static final String UPDATE_PERMISO;
+    private static final String DELETE_PERMISO;
 
     public PermisosDaoImpl() {
         conexion = DBUtil.getConexion();
@@ -26,9 +34,8 @@ public class PermisosDaoImpl implements IPermisosDao {
         List<Permisos> listaPermisos = new ArrayList<>();
 
         Statement stmt = conexion.createStatement();
-        String sql = "SELECT NOMBRE_PERMISO\n" + "FROM PERMISO";
+        ResultSet rs = stmt.executeQuery(SELECT_PERMISOS);
 
-        ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
             int idPermisos = rs.getInt("ID_PERMISO");
             String nombrePermiso = rs.getString("NOMBRE_PERMISO");
@@ -42,10 +49,7 @@ public class PermisosDaoImpl implements IPermisosDao {
 
     @Override
     public Permisos obtenerPermiso(int idPermisos) throws SQLException {
-        String sql = "SELECT NOMBRE_PERMISO\n"
-                + "FROM PERMISO \n"
-                + "WHERE ID_PERMISO=?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
+        PreparedStatement ps = conexion.prepareStatement(SELECT_PERMISO_POR_ID);
         ps.setInt(1, idPermisos);
         ResultSet rs = ps.executeQuery();
 
@@ -60,8 +64,7 @@ public class PermisosDaoImpl implements IPermisosDao {
 
     @Override
     public void crearPermiso(Permisos permisos) throws SQLException {
-        String sql = "INSERT INTO PERMISO (NOMBRE_PERMISO)\n" + "VALUES (?)";
-        PreparedStatement ps = conexion.prepareStatement(sql);
+        PreparedStatement ps = conexion.prepareStatement(INSERT_PERMISO);
 
         ps.setString(1, permisos.getNombrePermiso());
         ps.executeUpdate();
@@ -69,9 +72,8 @@ public class PermisosDaoImpl implements IPermisosDao {
 
     @Override
     public void actualizarPermiso(Permisos permisos) throws SQLException {
-        String sql = "UPDATE PERMISO \n" + "SET NOMBRE_PERMISO=? \n" + "WHERE ID_PERMISO=?";
-        PreparedStatement ps= conexion.prepareStatement(sql);
-        
+        PreparedStatement ps = conexion.prepareStatement(UPDATE_PERMISO);
+
         ps.setString(1, permisos.getNombrePermiso());
         ps.setInt(2, permisos.getIdPermiso());
         ps.executeUpdate();
@@ -79,10 +81,28 @@ public class PermisosDaoImpl implements IPermisosDao {
 
     @Override
     public void eliminarPermiso(int idPermiso) throws SQLException {
-        String sql = "DELETE \n" + "FROM PERMISO \n" + "WHERE ID_PERMISO=?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
+        PreparedStatement ps = conexion.prepareStatement(DELETE_PERMISO);
         ps.setInt(1, idPermiso);
         ps.executeUpdate();
     }
 
+    static {
+        SELECT_PERMISOS = "SELECT NOMBRE_PERMISO\n"
+                + "FROM PERMISO ORDER BY ID_PERMISO";
+
+        SELECT_PERMISO_POR_ID = "SELECT NOMBRE_PERMISO\n"
+                + "FROM PERMISO \n"
+                + "WHERE ID_PERMISO=?";
+
+        INSERT_PERMISO = "INSERT INTO PERMISO (NOMBRE_PERMISO)\n"
+                + "VALUES (?)";
+
+        UPDATE_PERMISO = "UPDATE PERMISO \n"
+                + "SET NOMBRE_PERMISO=? \n"
+                + "WHERE ID_PERMISO=?";
+
+        DELETE_PERMISO = "DELETE \n"
+                + "FROM PERMISO \n"
+                + "WHERE ID_PERMISO=?";
+    }
 }

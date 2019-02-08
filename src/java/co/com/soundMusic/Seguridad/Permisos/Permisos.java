@@ -12,6 +12,10 @@ public class Permisos {
     public Permisos() {
     }
 
+    public Permisos(int idPermiso) {
+        this.idPermiso = idPermiso;
+    }
+
     public Permisos(int idPermiso, String nombrePermiso) {
         this.idPermiso = idPermiso;
         this.nombrePermiso = nombrePermiso;

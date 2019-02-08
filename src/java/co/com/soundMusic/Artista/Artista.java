@@ -1,9 +1,9 @@
 package co.com.soundMusic.Artista;
 
+import co.com.soundMusic.Negocio.Regalias.ArtistaEmpresa.ArtistaEmpresaDaoImpl;
 import java.sql.Date;
+import java.util.List;
 import java.util.Objects;
-
-
 
 /**
  *
@@ -11,20 +11,18 @@ import java.util.Objects;
  */
 public class Artista {
 
-    private int idArtista;
+    private Integer idArtista;
     private String primerNombre;
     private String segundoNombre;
     private String primerApellido;
     private String segundoApellido;
     private String nombreArtistico;
     private String genero;
-    private Date fechaNacimiento;
     private Date fechaCreacion;
     private String status;
     private String rutaImagen;
-    private int idContacto;
 
-    public Artista(int idArtista, String[] datosArtista, Date[] fechasArtista, int idContacto) {
+    public Artista(Integer idArtista, String[] datosArtista, Date fechasCreacion) {
         this.idArtista = idArtista;
         this.primerNombre = datosArtista[0];
         this.segundoNombre = datosArtista[1];
@@ -32,21 +30,20 @@ public class Artista {
         this.segundoApellido = datosArtista[3];
         this.nombreArtistico = datosArtista[4];
         this.genero = datosArtista[5];
-        this.fechaNacimiento = fechasArtista[0];
-        this.fechaCreacion = fechasArtista[1];
+        this.fechaCreacion = fechasCreacion;
         this.status = datosArtista[6];
         this.rutaImagen = datosArtista[7];
-        this.idContacto = idContacto;
     }
 
     public Artista() {
+
     }
 
-    public int getIdArtista() {
+    public Integer getIdArtista() {
         return idArtista;
     }
 
-    public void setIdArtista(int idArtista) {
+    public void setIdArtista(Integer idArtista) {
         this.idArtista = idArtista;
     }
 
@@ -98,14 +95,6 @@ public class Artista {
         this.genero = genero;
     }
 
-    public Date getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(Date fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
     public Date getFechaCreacion() {
         return fechaCreacion;
     }
@@ -122,20 +111,12 @@ public class Artista {
         this.status = status;
     }
 
-    public String getRutaImagen (){
+    public String getRutaImagen() {
         return rutaImagen;
     }
 
-    public void setRutaImagen(String rutaImagen){
-        this.rutaImagen=rutaImagen;
-    }
-
-    public int getIdContacto() {
-        return idContacto;
-    }
-
-    public void setIdContacto(int idContacto) {
-        this.idContacto = idContacto;
+    public void setRutaImagen(String rutaImagen) {
+        this.rutaImagen = rutaImagen;
     }
 
     @Override
@@ -165,5 +146,19 @@ public class Artista {
             return false;
         }
         return true;
-    }        
+    }
+
+    public List<String> getNumeroEmpresas() {
+        ArtistaEmpresaDaoImpl daoArtistaEmpresa = new ArtistaEmpresaDaoImpl(true);
+        List<String> nombreEmpresas = daoArtistaEmpresa.obtenerEmpresas(idArtista);
+
+        return nombreEmpresas;
+    }
+
+    public int getNumeroArtistas() {
+        int numeroArtistas;
+        ArtistaDaoImpl daArtista = new ArtistaDaoImpl(true);
+        numeroArtistas = daArtista.getNumeroDeArtistas();
+        return numeroArtistas;
+    }
 }

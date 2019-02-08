@@ -1,8 +1,10 @@
 package co.com.soundMusic.Negocio.Regalias;
 
 import co.com.soundMusic.EmpresaDifusora.TipoCosto.CostoActividad;
+import co.com.soundMusic.EmpresaDifusora.TipoCosto.CostoActividadDaoImpl;
 import co.com.soundMusic.Negocio.Regalias.ArtistaEmpresa.ArtistaEmpresa;
-import java.sql.Date;
+import co.com.soundMusic.Negocio.Regalias.ArtistaEmpresa.ArtistaEmpresaDaoImpl;
+import java.sql.Timestamp;
 
 /**
  *
@@ -12,31 +14,33 @@ public class Regalia {
 
     private int idRegalia;
     private float totalGanado;
-    private int numeroOperacio;
-    private Date fecha;
+    private int numeroOperaciones;
+    private Timestamp fecha;
     private ArtistaEmpresa artistaEmpresa;
     private CostoActividad costo;
 
     public Regalia() {
+        this.artistaEmpresa = new ArtistaEmpresa();
+        this.costo = new CostoActividad();
     }
 
-    public Regalia(int idRegalia, float totalGanado, int numeroOperacio, Date fecha, ArtistaEmpresa artistaEmpresa, CostoActividad costo) {
+    public Regalia(int idRegalia, float totalGanado, int numeroOperaciones, Timestamp fecha) {
         this.idRegalia = idRegalia;
         this.totalGanado = totalGanado;
-        this.numeroOperacio = numeroOperacio;
+        this.numeroOperaciones = numeroOperaciones;
+        this.fecha = fecha;
+        this.artistaEmpresa = new ArtistaEmpresa();
+        this.costo = new CostoActividad();
+    }
+
+    public Regalia(int idRegalia, float totalGanado, int numeroOperaciones, Timestamp fecha, ArtistaEmpresa artistaEmpresa, CostoActividad costo) {
+        this.idRegalia = idRegalia;
+        this.totalGanado = totalGanado;
+        this.numeroOperaciones = numeroOperaciones;
         this.fecha = fecha;
         this.artistaEmpresa = artistaEmpresa;
         this.costo = costo;
     }
-
-    public Regalia(int idRegalia, float totalGanado, int numeroOperacio, Date fecha) {
-        this.idRegalia = idRegalia;
-        this.totalGanado = totalGanado;
-        this.numeroOperacio = numeroOperacio;
-        this.fecha = fecha;
-    }
-
-  
 
     public int getIdRegalia() {
         return idRegalia;
@@ -54,11 +58,11 @@ public class Regalia {
         this.totalGanado = totalGanado;
     }
 
-    public Date getFecha() {
+    public Timestamp getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(Timestamp fecha) {
         this.fecha = fecha;
     }
 
@@ -78,12 +82,12 @@ public class Regalia {
         this.costo = costo;
     }
 
-    public int getNumeroOperacio() {
-        return numeroOperacio;
+    public int getNumeroOperaciones() {
+        return numeroOperaciones;
     }
 
-    public void setNumeroOperacio(int numeroOperacio) {
-        this.numeroOperacio = numeroOperacio;
+    public void setNumeroOperaciones(int numeroOperaciones) {
+        this.numeroOperaciones = numeroOperaciones;
     }
 
     @Override
@@ -110,9 +114,18 @@ public class Regalia {
         }
         return true;
     }
-    
-    public float calcularRegalias(){
-        float regalias = numeroOperacio*costo.getCostoPorOperacion();               
-        return regalias;
+
+    public void calcularRegalias() {
+        this.setTotalGanado(this.numeroOperaciones * this.costo.getCostoPorOperacion());
+    }
+
+    public void obtenerArtistaEmpresa() {
+        ArtistaEmpresaDaoImpl daoArtistaEmpresa = new ArtistaEmpresaDaoImpl(true);
+        this.setArtistaEmpresa(daoArtistaEmpresa.obtenerArtistaEmpresa(this.artistaEmpresa.getIdArtistaEmpresa()));
+    }
+
+    public void obtenerCosto() {
+        CostoActividadDaoImpl daoCosto = new CostoActividadDaoImpl(true);
+        this.setCosto(daoCosto.obtenerCostoActividad(this.costo.getIdCostoActividad()));
     }
 }

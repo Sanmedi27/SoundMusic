@@ -1,3 +1,5 @@
+<%@page import="co.com.soundMusic.Login.Usuario.Usuario"%>
+<%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -23,81 +25,63 @@
                     <hr>
                     <br>
                     <div class="row">
-
                         <div class="col">
-                            <a href="registrarUsuario.jsp" class="btn btn-success" id="registrarUsuario">Registrar Usuario</a>
+                            <a href="controladorUsuario?opcion=crearUsuario" class="btn btn-success" id="registrarUsuario">Registrar Usuario</a>                            
+                        </div>
+                        <div class="col">
+                            <label>Listar solo activos</label>                            
+                            <input type="checkbox" id="modoListar" onclick="cambiarLista()">
                         </div>
                     </div>
 
                     <br>
 
-                    <table class="table">
+                    <table class="table" id="listaUsuarios">
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Nombre Completo</th>
                                 <th scope="col">Sexo</th>
-                                <th scope="col">Correo</th>
                                 <th scope="col">Tipo de Usuario</th>
                                 <th scope="col">Nombre Usuario</th>
                                 <th scope="col">Fecha Entrada</th>
-                                <th scope="col">Activo</th>
+                                <th scope="col">Estado</th>
                                 <th scope="col">Operaciones</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Sr. Administrador</td>
-                                <td>Masculino</td>
-                                <td>admin@mcl.com</td>
-                                <td>Administrador</td>
-                                <td>admin</td>
-                                <td>22/08/2018 18:44</td>
-                                <td><a href="#" class="badge badge-success btnActivar" idUsuario="1" activarUsuario="0">Activado</a></td>
-                                <td><a href="modificarUsuario.jsp" class="btn btn-warning">Actualizar</a></td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Santiago Cortes</td>
-                                <td>Masculino</td>
-                                <td>santicortes@mcl.com</td>
-                                <td>Operador</td>
-                                <td>santiC</td>
-                                <td>21/08/2018 9:00</td>
-                                <td><a href="#" class="badge badge-success btnActivar" activarUsuario="0">Activado</a></td>
-                                <td><button type="button" class="btn btn-warning">Actualizar</button></td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Melany Palacios</td>
-                                <td>Femenino</td>
-                                <td>melany@mcl.com</td>
-                                <td>Operador</td>
-                                <td>melany</td>
-                                <td>21/08/2018 12:10</td>
-                                <td><a href="#" class="badge badge-success btnActivar" idUsuario="1" activarUsuario="0">Activado</a></td>
-                                <td><button type="button" class="btn btn-warning">Actualizar</button></td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">4</th>
-                                <td>Santiago Medina</td>
-                                <td>Masculino</td>
-                                <td>santiagoM@mcl.com</td>
-                                <td>Operador</td>
-                                <td>santiM</td>
-                                <td>24/08/2018 13:10</td>
-                                <td><a href="#" class="badge badge-success btnActivar" idUsuario="1" activarUsuario="0">Activado</a></td>
-                                <td><button type="button" class="btn btn-warning">Actualizar</button></td>
-                            </tr>
+                            <%
+                                List<Usuario> lstUsuario = (List<Usuario>) request.getAttribute("lstUsuario");
+                                for (Usuario usu : lstUsuario) {
+                                    out.print("<tr>");
+                                    out.print("<th  scope='row'>" + usu.getIdUsuario() + "</th>");
+                                    out.print("<td>" + usu.getPrimerNombre() + " " + usu.getPrimerApellido() + "</td>");
+                                    out.print("<td>" + usu.getGenero() + "</td>");
+                                    out.print("<td>" + usu.getPerfil().getNombrePerfil() + "</td>");
+                                    out.print("<td>" + usu.getUsuarioLogin().getNombreUsuario() + "</td>");
+                                    out.print("<td>" + usu.getFechaCreacion() + "</td>");
+                                    if (usu.getStatus().equalsIgnoreCase("A")) {
+                                        out.print(
+                                                "<td><a href='controladorUsuario?opcion=editarEstado&IdUsuario="
+                                                + usu.getIdUsuario() + "&estado=I' class='badge badge-success btnActivar' idUsuario="
+                                                + usu.getIdUsuario() + " activarUsuario='0'> Activado </a></td>");
+                                    } else {
+                                        out.print(
+                                                "<td><a href='controladorUsuario?opcion=editarEstado&IdUsuario="
+                                                + usu.getIdUsuario() + "&estado=A' class='badge btnActivar badge-danger' idUsuario="
+                                                + usu.getIdUsuario() + " activarUsuario='1'>Inactivo</a></td>");
+                                    }
+                                    out.print(
+                                            "<td><a href='controladorUsuario?opcion=editar&IdUsuario="
+                                            + usu.getIdUsuario() + "' class='btn btn-warning'>Actualizar</a></td>");
+                                    out.print("</tr>");
+                                }
+                            %>
                         </tbody>
                     </table>
-                    
-                    <%@include file="pruebasTablas/listaUsuarios.jsp" %>
+
+
+
                 </div>
             </div>
         </div>
