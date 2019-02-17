@@ -120,7 +120,7 @@ public class UsuarioDaoImpl implements IUsuarioDao {
                 usuarioLogin.setContrasena(rs.getString("CONTRASENA"));
 
                 //Datos Usuario
-                usuario.setIdUsuario(rs.getInt("ID_USUARIO"));
+                usuario.setIdUsuario(idUsuario);
                 usuario.setPrimerNombre(rs.getString("PRIMER_NOMBRE"));
                 usuario.setSegundoNombre(validacion(rs.getString("SEGUNDO_NOMBRE")));
                 usuario.setPrimerApellido(rs.getString("PRIMER_APELLIDO"));

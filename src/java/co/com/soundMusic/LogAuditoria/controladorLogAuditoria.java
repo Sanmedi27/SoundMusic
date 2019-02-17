@@ -63,11 +63,7 @@ public class controladorLogAuditoria extends HttpServlet {
         String opcion = (String) request.getParameter("opcion");
         if (opcion != null) {
             if (opcion.equals("listarLogAuditoria")) {
-                try {
-                    mostrarPaginaAuditoria(request, response);
-                } catch (SQLException ex) {
-                    Logger.getLogger(controladorLogAuditoria.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                mostrarPaginaAuditoria(request, response);
             }
         }
     }
@@ -97,7 +93,7 @@ public class controladorLogAuditoria extends HttpServlet {
     }// </editor-fold>
 
     private void mostrarPaginaAuditoria(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, SQLException {
+            throws ServletException, IOException{
         LogAuditoriaDaoImpl daoLogAuditoria = new LogAuditoriaDaoImpl(true);
         List<LogAuditoria> lstLogAuditoria = daoLogAuditoria.obtenerLogAuditoria();
         request.setAttribute("lstLogAuditoria", lstLogAuditoria);

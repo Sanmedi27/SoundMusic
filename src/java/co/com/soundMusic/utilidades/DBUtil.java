@@ -12,7 +12,7 @@ import java.util.logging.Logger;
  */
 public class DBUtil {
 
-    public static final String URL = "jdbc:oracle:thin:@localhost:1521:XE";
+    public static final String URL = "jdbc:oracle:thin:@localhost:1521:System";
     public static final String USER = "SOUNDMUSIC";
     public static final String PASS = "SOUNDMUSIC2018";
     public static final String USER_TEST = "DBTest";

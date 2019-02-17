@@ -102,7 +102,7 @@ public class controladorUsuario extends HttpServlet {
         switch (operacion) {
             case "crear":
                 crearUsuario(request);
-                ingresarLogAuditoria(UsuarioId(request, response), 3);
+                ingresarLogAuditoria(UsuarioId(request, response), 5);
                 mostrarPaginaUsuario(request, response);
                 request.setAttribute("lstUsuario", lstUsuariop);
                 request.getRequestDispatcher("/usuario.jsp").forward(request, response);
@@ -182,7 +182,7 @@ public class controladorUsuario extends HttpServlet {
 
     private void ingresarLogAuditoria(int idUsuario, int idPermisos) {
         LogAuditoriaDaoImpl daoLogAuditoria = new LogAuditoriaDaoImpl(true);
-        daoLogAuditoria.crearLog(new LogAuditoria(0, new Usuario(idUsuario), new Permisos(idPermisos)));
+        daoLogAuditoria.crearLog(new LogAuditoria(0, idUsuario, idPermisos));
     }
 
     //Metodo para tener el id del usuario en la sesion

@@ -9,13 +9,13 @@ import java.util.List;
  */
 public interface IPermisosDao {
 
-    List<Permisos> obtenerPermisos() throws SQLException;
+    List<Permisos> obtenerPermisos();
 
-    public Permisos obtenerPermiso(int idPermisos) throws SQLException;
+    public Permisos obtenerPermiso(int idPermisos);
 
-    public void crearPermiso(Permisos permisos) throws SQLException;
+    public int crearPermiso(Permisos permisos);
 
-    public void actualizarPermiso(Permisos permisos) throws SQLException;
+    public void actualizarPermiso(Permisos permisos);
 
-    public void eliminarPermiso(int idPermiso) throws SQLException;
+    public void eliminarPermiso(int idPermiso);
 }

@@ -1,15 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package co.com.soundMusic.Login;
 
 import co.com.soundMusic.LogAuditoria.LogAuditoria;
 import co.com.soundMusic.LogAuditoria.LogAuditoriaDaoImpl;
 import co.com.soundMusic.Login.Usuario.Usuario;
 import co.com.soundMusic.Login.Usuario.controladorUsuario;
-import co.com.soundMusic.Seguridad.Permisos.Permisos;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -23,7 +17,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author medinas
+ * @author Santiago Medina Peláez
  */
 public class controladorLogin extends HttpServlet {
 
@@ -145,6 +139,6 @@ public class controladorLogin extends HttpServlet {
 
     private void ingresarLogAuditoria(int idUsuario, int idPermisos) {
         LogAuditoriaDaoImpl daoLogAuditoria = new LogAuditoriaDaoImpl(true);
-        daoLogAuditoria.crearLog(new LogAuditoria(0, new Usuario(idUsuario), new Permisos(idPermisos)));
+        daoLogAuditoria.crearLog(new LogAuditoria(0, idUsuario, idPermisos));
     }
 }

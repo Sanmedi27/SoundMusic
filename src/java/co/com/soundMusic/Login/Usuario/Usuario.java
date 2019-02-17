@@ -62,7 +62,6 @@ public class Usuario {
      * @param genero
      * @param idPerfil
      * @param idUsuarioLogin
-     * @param idContacto
      * @since 2.8.
      */
     public Usuario(String primerNombre, String segundoNombre, String primerApellido,

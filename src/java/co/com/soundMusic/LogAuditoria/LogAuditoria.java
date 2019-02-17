@@ -17,23 +17,27 @@ public class LogAuditoria {
 
     private int idLogAuditoria;
     private Timestamp fecha;
+    private int idUsuario;
+    private int idOperaciones;
     private Usuario usuario;
     private Permisos operaciones;
 
     public LogAuditoria() {
+        this.usuario = new Usuario();
+        this.operaciones = new Permisos();
     }
 
-    public LogAuditoria(int idLogAuditoria, Timestamp fecha, Usuario usuario, Permisos operaciones) {
+    public LogAuditoria(int idLogAuditoria, Timestamp fecha, int idUsuario, int idOperaciones) {
         this.idLogAuditoria = idLogAuditoria;
         this.fecha = fecha;
-        this.usuario = usuario;
-        this.operaciones = operaciones;
+        this.idUsuario = idUsuario;
+        this.idOperaciones = idOperaciones;
     }
 
-    public LogAuditoria(int idLogAuditoria, Usuario usuario, Permisos operaciones) {
+    public LogAuditoria(int idLogAuditoria, int idUsuario, int idOperaciones) {
         this.idLogAuditoria = idLogAuditoria;
-        this.usuario = usuario;
-        this.operaciones = operaciones;
+        this.idUsuario = idUsuario;
+        this.idOperaciones = idOperaciones;
     }
 
     public int getIdLogAuditoria() {
@@ -68,17 +72,30 @@ public class LogAuditoria {
         this.fecha = fecha;
     }
 
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public int getIdOperaciones() {
+        return idOperaciones;
+    }
+
+    public void setIdOperaciones(int idOperaciones) {
+        this.idOperaciones = idOperaciones;
+    }
+
     public void obtenerPermiso() {
-        PermisosDaoImpl daoPermisos = new PermisosDaoImpl();
-        try {
-            this.setOperaciones(daoPermisos.obtenerPermiso(this.operaciones.getIdPermiso()));
-        } catch (SQLException ex) {
-            Logger.getLogger(LogAuditoria.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        PermisosDaoImpl daoPermisos = new PermisosDaoImpl(true);
+        this.setOperaciones(daoPermisos.obtenerPermiso(this.getIdOperaciones()));
     }
 
     public void obtenerUsuario() {
         UsuarioDaoImpl daoUsuario = new UsuarioDaoImpl(true);
-        this.setUsuario(daoUsuario.obtenerUsuario(this.usuario.getIdUsuario()));
+        this.setUsuario(daoUsuario.obtenerUsuario(this.getIdUsuario()));
     }
+
 }
