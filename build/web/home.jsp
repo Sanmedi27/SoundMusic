@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-md-12">
 
-                    <h3>Artistas Mas Destacados Del 2018</h3>
+                    <h3>Artistas Mas Destacados Del 2019</h3>
                     <hr>
                     <br>
 
