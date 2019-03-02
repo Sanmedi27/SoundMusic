@@ -75,9 +75,24 @@ public class ControladorRegalias extends HttpServlet {
             throws ServletException, IOException {
         String opcion = (String) request.getParameter("opcion");
         RequestDispatcher vista;
+        RegaliaDaoImpl daoRegalia= new RegaliaDaoImpl(true);
         switch (opcion) {
             case "listarRegalias":
                 mostrarPaginaRegalias(request, response);
+                break;
+            case "borrar":
+                int idRegalia = Integer.parseInt((String) request.getParameter("idRegalia"));
+                String status = request.getParameter("estado");
+                daoRegalia.pagarRegalia(status, idRegalia);
+                for (int i = 0; i < lstRegaliasp.size(); i++) {
+                    if (lstRegaliasp.get(i).getIdRegalia()== idRegalia) {
+                        lstRegaliasp.get(i).setStatus(status);
+                    }
+                }
+                request.setAttribute("lstRegalias", lstRegaliasp);
+                request.setAttribute("lstArtistap", lstArtistap);
+                request.setAttribute("lstEmpresaDifusorap", lstEmpresaDifusorap);                
+                request.getRequestDispatcher("/regalias.jsp").forward(request, response);
                 break;
         }
     }
@@ -100,7 +115,10 @@ public class ControladorRegalias extends HttpServlet {
                 crearRegalias(request, response);
                 //Ingresar al log de auditoria
                 mostrarPaginaRegalias(request, response);
-                
+                break;
+            case "pagar":
+                editarRegalias(request, response);
+                mostrarPaginaRegalias(request, response);
                 break;
         }
     }
@@ -171,7 +189,7 @@ public class ControladorRegalias extends HttpServlet {
         regalia.setCosto(costo);
         regalia.calcularRegalias();
 
-        RegaliaDaoImpl regaliaDao=new RegaliaDaoImpl(true);
+        RegaliaDaoImpl regaliaDao = new RegaliaDaoImpl(true);
         regalia.setIdRegalia(regaliaDao.crearRegalia(regalia));
     }
 
@@ -197,5 +215,9 @@ public class ControladorRegalias extends HttpServlet {
         CostoActividad costo = costoDao.getCostoPorIdEmpresa(
                 Integer.parseInt(request.getParameter("nomEmpresa")));
         return costo;
+    }
+
+    private void editarRegalias(HttpServletRequest request, HttpServletResponse response) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

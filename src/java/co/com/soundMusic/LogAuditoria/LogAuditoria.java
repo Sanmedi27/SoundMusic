@@ -4,10 +4,7 @@ import co.com.soundMusic.Seguridad.Permisos.Permisos;
 import co.com.soundMusic.Login.Usuario.Usuario;
 import co.com.soundMusic.Login.Usuario.UsuarioDaoImpl;
 import co.com.soundMusic.Seguridad.Permisos.PermisosDaoImpl;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

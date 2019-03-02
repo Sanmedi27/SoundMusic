@@ -34,6 +34,7 @@ public class RegaliaDaoImpl implements IRegaliaDao {
     private static final String INSERT_REGALIA;
     private static final String UPDATE_REGALIA;
     private static final String SELECT_ULTIMO_ID;
+    private static final String UPDATE_STATUS;
 
     public RegaliaDaoImpl(Boolean production) {
         isProduction = production;
@@ -68,6 +69,7 @@ public class RegaliaDaoImpl implements IRegaliaDao {
                 regalia.setTotalGanado(rs.getFloat("TOTAL_GANADO"));
                 regalia.setNumeroOperaciones(rs.getInt("NUMERO_OPERACIONES"));
                 regalia.setFecha(rs.getTimestamp("FECHA"));
+                regalia.setStatus(rs.getString("STATUS"));
                 regalia.setArtistaEmpresa(artistaEmpresa);
                 regalia.setCosto(costo);
 
@@ -115,6 +117,7 @@ public class RegaliaDaoImpl implements IRegaliaDao {
                 regalia.setTotalGanado(rs.getFloat("TOTAL_GANADO"));
                 regalia.setNumeroOperaciones(rs.getInt("NUMERO_OPERACIONES"));
                 regalia.setFecha(rs.getTimestamp("FECHA"));
+                regalia.setStatus(rs.getString("STATUS"));
                 regalia.setArtistaEmpresa(artistaEmpresa);
                 regalia.setCosto(costo);
 
@@ -166,6 +169,7 @@ public class RegaliaDaoImpl implements IRegaliaDao {
                 regalia.setTotalGanado(rs.getFloat("TOTAL_GANADO"));
                 regalia.setNumeroOperaciones(rs.getInt("NUMERO_OPERACIONES"));
                 regalia.setFecha(rs.getTimestamp("FECHA"));
+                regalia.setStatus(rs.getString("STATUS"));
                 regalia.setArtistaEmpresa(artistaEmpresa);
                 regalia.setCosto(costo);
             }
@@ -199,6 +203,7 @@ public class RegaliaDaoImpl implements IRegaliaDao {
             ps.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(4, regalia.getArtistaEmpresa().getIdArtistaEmpresa());
             ps.setInt(5, regalia.getCosto().getIdCostoActividad());
+            ps.setString(6, "I");
             ps.executeUpdate();
             id = getUltimoIdRegalia();
         } catch (SQLException ex) {
@@ -226,12 +231,35 @@ public class RegaliaDaoImpl implements IRegaliaDao {
         ps.setInt(3, regalia.getArtistaEmpresa().getIdArtistaEmpresa());
         ps.setInt(4, regalia.getCosto().getIdCostoActividad());
         ps.setInt(5, regalia.getIdRegalia());
+        ps.setString(6, regalia.getStatus());
         ps.executeUpdate();
+    }
+
+    public void pagarRegalia(String status, int idRegalia) {
+        getConexion();
+        try {
+            PreparedStatement ps = conexion.prepareStatement(UPDATE_STATUS);
+            ps.setString(1, status);
+            ps.setInt(2, idRegalia);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(RegaliaDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(RegaliaDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     static {
         SELECT_REGALIAS = "SELECT REG.ID_REGALIA, REG.TOTAL_GANADO,REG.NUMERO_OPERACIONES ,REG.FECHA,\n"
-                + "REG.ID_ARTISTA_EMPRESA, REG.ID_COSTO, ARTEMP.ID_ARTISTA, ARTEMP.ID_EMPRESA_DIFUSORA,\n"
+                + "REG.ID_ARTISTA_EMPRESA, REG.ID_COSTO, REG.STATUS, ARTEMP.ID_ARTISTA, ARTEMP.ID_EMPRESA_DIFUSORA,\n"
                 + "AR.NOMBRE_ARTISTICO, EMDI.NOMBRE,\n"
                 + "COSTA.COSTO_POR_OPERACION, COSTA.FECHA_CREACION, COSTA.FECHA_USO_FINAL \n"
                 + "FROM REGALIA REG INNER JOIN ARTISTA_EMPRESA ARTEMP \n"
@@ -245,13 +273,13 @@ public class RegaliaDaoImpl implements IRegaliaDao {
                 + "ORDER BY ID_REGALIA";
 
         SELECT_REGALIAS_SIMPLE = "SELECT REG.ID_REGALIA, REG.TOTAL_GANADO,REG.NUMERO_OPERACIONES ,REG.FECHA,\n"
-                + "REG.ID_ARTISTA_EMPRESA, REG.ID_COSTO, ARTEMP.ID_ARTISTA, ARTEMP.ID_EMPRESA_DIFUSORA \n"
+                + "REG.ID_ARTISTA_EMPRESA, REG.ID_COSTO,REG.STATUS, ARTEMP.ID_ARTISTA, ARTEMP.ID_EMPRESA_DIFUSORA \n"
                 + "FROM REGALIA REG INNER JOIN ARTISTA_EMPRESA ARTEMP \n"
                 + "ON REG.ID_ARTISTA_EMPRESA = ARTEMP.ID_ARTISTA_EMPRESA \n"
                 + "ORDER BY ID_REGALIA";
 
         SELECT_REGALIA_POR_ID = "SELECT REG.ID_REGALIA, REG.TOTAL_GANADO,REG.NUMERO_OPERACIONES ,REG.FECHA,\n"
-                + "REG.ID_ARTISTA_EMPRESA, REG.ID_COSTO, \n"
+                + "REG.ID_ARTISTA_EMPRESA, REG.ID_COSTO,REG.STATUS, \n"
                 + "ARTEMP.ID_ARTISTA, ARTEMP.ID_EMPRESA_DIFUSORA,\n"
                 + "COSTA.COSTO_POR_OPERACION, COSTA.FECHA_CREACION, COSTA.FECHA_USO_FINAL \n"
                 + "FROM REGALIA REG INNER JOIN ARTISTA_EMPRESA ARTEMP \n"
@@ -260,16 +288,20 @@ public class RegaliaDaoImpl implements IRegaliaDao {
                 + "ON REG.ID_COSTO = COSTA.ID_COSTO_ACTIVIDAD\n"
                 + "WHERE ID_REGALIA=?";
 
-        INSERT_REGALIA = "INSERT INTO REGALIA (TOTAL_GANADO,NUMERO_OPERACIONES, FECHA, ID_ARTISTA_EMPRESA, ID_COSTO)\n"
-                + "VALUES(?,?,?,?,?)";
+        INSERT_REGALIA = "INSERT INTO REGALIA (TOTAL_GANADO,NUMERO_OPERACIONES, FECHA, ID_ARTISTA_EMPRESA, ID_COSTO,STATUS)\n"
+                + "VALUES(?,?,?,?,?,?)";
 
         UPDATE_REGALIA = "UPDATE REGALIA \n"
                 + "SET TOTAL_GANADO=?, FECHA=?, \n"
-                + "ID_ARTISTA_EMPRESA=?, ID_COSTO=? \n"
+                + "ID_ARTISTA_EMPRESA=?, ID_COSTO=?, STATUS=? \n"
                 + "WHERE ID_REGALIA=?";
 
         SELECT_ULTIMO_ID = "SELECT REGALIA_SEQ.CURRVAL\n"
                 + "FROM DUAL";
+
+        UPDATE_STATUS = "UPDATE REGALIA \n"
+                + "SET STATUS=? \n"
+                + "WHERE ID_REGALIA=?";
     }
 
     private void getConexion() {

@@ -61,9 +61,17 @@
                                     out.print("<td>" + reg.getFecha() + "</td>");
                                     out.print("<td>" + reg.getNumeroOperaciones() + "</td>");
                                     out.print("<td>" + "$ " + reg.getCosto().getCostoPorOperacion() + "</td>");
-                                    out.print("<td class='text-success'>" + "$ " + reg.getTotalGanado() + "</td>");
-                                    out.print("<td>" + "Pendiente" + "</td>");
-                                    out.print("<td><a href='#' class='badge badge-danger btnActivar' activarRegalias=''>" + "Pendiente" + "</a></td>");
+                                    out.print("<td class='text-success'>" + "$ " + reg.getTotalGanado() + "</td>");                                    
+                                    //out.print("<td><a href='#' class='badge badge-danger btnActivar' activarRegalias=''>" + "Pendiente" + "</a></td>");
+                                    if (reg.getStatus().equalsIgnoreCase("a")) {
+                                        out.print("<td>" + "Pagado" + "</td>");
+                                        out.print("<td><a href='ControladorRegalias?opcion=borrar&idRegalia="
+                                                + reg.getIdRegalia() + "&estado=I' class='badge badge-success btnActivar' activarRegalias='0'>Pagado</a></td>");
+                                    } else {
+                                        out.print("<td>" + "Pendiente" + "</td>");
+                                        out.print("<td><a href='ControladorRegalias?opcion=borrar&idRegalia="
+                                                + reg.getIdRegalia() + "&estado=A' class='badge btnActivar badge-danger' activarRegalias='1'>Pendiente</a></td>");
+                                    }
                                     out.print("</tr>");
                                 }
                             %>       

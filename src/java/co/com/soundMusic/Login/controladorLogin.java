@@ -119,7 +119,7 @@ public class controladorLogin extends HttpServlet {
                 sessionUsuario.setAttribute("nomUsuario", nomUsuario);
                 sessionUsuario.setAttribute("usuarioId", usuario.getIdUsuario());
 
-                //ingresarLogAuditoria(usuario.getIdUsuario(), 1); //1 representa fila 1 de tabla permiso= Iniciar Sesion.
+                ingresarLogAuditoria(usuario.getIdUsuario(), 1); //1 representa fila 1 de tabla permiso= Iniciar Sesion.
                 response.sendRedirect("home.jsp");
             } else {
                 response.sendRedirect("login.jsp");
@@ -132,7 +132,7 @@ public class controladorLogin extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         request.getRequestDispatcher("navbar.jsp").include(request, response);
         HttpSession sessionUsuario = request.getSession(false);
-        //ingresarLogAuditoria((int) sessionUsuario.getAttribute("usuarioId"), 2);//2 representa fila 2 de tabla permiso= Cerrar Sesion.
+        ingresarLogAuditoria((int) sessionUsuario.getAttribute("usuarioId"), 2);//2 representa fila 2 de tabla permiso= Cerrar Sesion.
         sessionUsuario.invalidate();
         response.sendRedirect("login.jsp");
     }

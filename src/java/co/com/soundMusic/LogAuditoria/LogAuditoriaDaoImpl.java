@@ -1,7 +1,5 @@
 package co.com.soundMusic.LogAuditoria;
 
-import co.com.soundMusic.Login.Usuario.Usuario;
-import co.com.soundMusic.Seguridad.Permisos.Permisos;
 import co.com.soundMusic.utilidades.DBUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,7 +49,7 @@ public class LogAuditoriaDaoImpl implements ILogAuditoriaDao {
                 logAuditoria.setIdLogAuditoria(rs.getInt("ID_LOG_AUDITORIA"));
                 logAuditoria.setFecha(rs.getTimestamp("FECHA"));
                 logAuditoria.setIdUsuario(rs.getInt("ID_USUARIO"));
-                logAuditoria.setIdOperaciones(rs.getInt("ID_OPERACION"));
+                logAuditoria.setIdOperaciones(rs.getInt("ID_OPERACION"));                
 
                 logAuditoria.obtenerPermiso();
                 logAuditoria.obtenerUsuario();
@@ -84,10 +82,10 @@ public class LogAuditoriaDaoImpl implements ILogAuditoriaDao {
             PreparedStatement ps = conexion.prepareStatement(INSERT_LOG_AUDITORIA);
 
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setInt(2, logAuditoria.getUsuario().getIdUsuario());
-            ps.setInt(3, logAuditoria.getOperaciones().getIdPermiso());
+            ps.setInt(2, logAuditoria.getIdUsuario());
+            ps.setInt(3, logAuditoria.getIdOperaciones());
             ps.executeUpdate();
-            
+
         } catch (SQLException | NullPointerException ex) {
             System.out.println("Excepción " + ex.getMessage());
             Logger.getLogger(LogAuditoriaDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -100,7 +98,7 @@ public class LogAuditoriaDaoImpl implements ILogAuditoriaDao {
             } catch (InterruptedException ex) {
                 Logger.getLogger(LogAuditoriaDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }        
+        }
     }
 
     @Override
@@ -142,6 +140,31 @@ public class LogAuditoriaDaoImpl implements ILogAuditoriaDao {
         return listaLogAuditoria;
     }
 
+    public void actualizarLog(LogAuditoria logAuditoria) {
+        getConexion();
+        try {
+            PreparedStatement ps = conexion.prepareStatement("");
+
+            ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setInt(2, logAuditoria.getUsuario().getIdUsuario());
+            ps.setInt(3, logAuditoria.getOperaciones().getIdPermiso());
+            ps.executeUpdate();
+
+        } catch (SQLException | NullPointerException ex) {
+            System.out.println("Excepción " + ex.getMessage());
+            Logger.getLogger(LogAuditoriaDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (conexion != null) {
+                    DbUtils.closeQuietly(conexion);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(LogAuditoriaDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
     public int getUltimoIdLog() {
         int idLog = -1;
         try {
@@ -170,14 +193,14 @@ public class LogAuditoriaDaoImpl implements ILogAuditoriaDao {
     }
 
     static {
-        SELECT_LOG_AUDITORIA = "SELECT ID_LOG_AUDITORIA,FECHA,ID_USUARIO,ID_OPERACION\n"
+        SELECT_LOG_AUDITORIA = "SELECT ID_LOG_AUDITORIA,FECHA,ID_USUARIO,ID_OPERACION \n"
                 + "FROM LOG_AUDITORIA \n"
                 + "ORDER BY ID_LOG_AUDITORIA";
 
         INSERT_LOG_AUDITORIA = "INSERT INTO LOG_AUDITORIA (FECHA,ID_USUARIO,ID_OPERACION)\n"
                 + "VALUES (?,?,?)";
 
-        SELECT_LOG_AUDITORIA_POR_USUARIO = "SELECT ID_LOG_AUDITORIA,FECHA,ID_USUARIO,ID_OPERACION\n"
+        SELECT_LOG_AUDITORIA_POR_USUARIO = "SELECT ID_LOG_AUDITORIA,FECHA,ID_USUARIO,ID_OPERACION \n"
                 + "FROM LOG_AUDITORIA \n"
                 + "WHERE ID_USUARIO=? \n"
                 + "ORDER BY ID_LOG_AUDITORIA";

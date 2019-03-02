@@ -18,6 +18,7 @@ public class Regalia {
     private Timestamp fecha;
     private ArtistaEmpresa artistaEmpresa;
     private CostoActividad costo;
+    private String status;
 
     public Regalia() {
         this.artistaEmpresa = new ArtistaEmpresa();
@@ -88,6 +89,14 @@ public class Regalia {
 
     public void setNumeroOperaciones(int numeroOperaciones) {
         this.numeroOperaciones = numeroOperaciones;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override
